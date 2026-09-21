@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalhes do Aluno | {{ aluno.nome }} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Perfil do Aluno</h3>
+    <div class="d-flex gap-2">
+        <a href="{% url 'usuarios:aluno_editar' pk=aluno.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Editar
+        </a>
+        <a href="{% url 'usuarios:aluno_lista' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Card de Dados Pessoais -->
+    <div class="col-lg-4 col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person-vcard me-2"></i>Informações Pessoais
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="user-avatar mx-auto mb-2" style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <h5 class="mb-1">{{ aluno.nome }}</h5>
+                    <span class="badge bg-primary">{{ aluno.get_sexo_display }}</span>
+                </div>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Nascimento:</span>
+                        <strong>{{ aluno.nascimento|date:"d/m/Y"|default:"-" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Celular:</span>
+                        <strong>{{ aluno.celular|default:"-" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">E-mail:</span>
+                        <strong>{{ aluno.user.email|default:"-" }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-md-7">
+        <div class="card">
+            <div class="card-header card-header-light">
+                <i class="bi bi-geo-alt me-2"></i>Endereço & Contato
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label class="text-secondary d-block">Endereço</label>
+                        <span>{{ aluno.endereco }}</span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="text-secondary d-block">CEP</label>
+                        <span>{{ aluno.cep }}</span>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="text-secondary d-block">Bairro</label>
+                        <span>{{ aluno.bairro }}</span>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="text-secondary d-block">Cidade</label>
+                        <span>{{ aluno.cidade }}</span>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="text-secondary d-block">UF</label>
+                        <span> {{ aluno.get_estado_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header card-header-light">
+                <i class="bi bi-trophy me-2"></i>Objetivo do Aluno
+            </div>
+            <div class="card-body">
+                <p class="mb-0 text-secondary">
+                    {{ aluno.objetivo }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

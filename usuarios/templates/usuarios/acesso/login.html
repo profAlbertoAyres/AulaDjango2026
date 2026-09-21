@@ -1,0 +1,56 @@
+{% extends "base_site.html" %}
+
+{% block title %}Entrar | Personal Trainer{% endblock %}
+
+{% block content %}
+    <section class="py-secao">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="card card-fitness shadow-sm">
+                        <div class="card-body p-4">
+                            <h2 class="titulo-secao mb-4">Entrar</h2>
+
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    Usuário ou senha inválidos.
+                                </div>
+                            {% endif %}
+
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <div class="mb-3">
+                                    <label for="{{ form.username.id_for_label }}"
+                                           class="form-label fw-semibold">Usuário</label>
+                                    {{ form.username }}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.password.id_for_label }}"
+                                           class="form-label fw-semibold">Senha</label>
+                                    {{ form.password }}
+                                </div>
+
+                                <input type="hidden" name="next" value="{{ next }}">
+
+                                <button type="submit" class="btn btn-fitness w-100">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+                                </button>
+                            </form>
+                            <div class="d-flex flex-column align-items-end mt-4 gap-2">
+                                <a href="{% url 'esqueci_senha' %}" class=" link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                    <i class="bi bi-question-circle me-1"></i>Esqueci minha senha
+                                </a>
+                                <a href="{% url 'web:home' %}" class=" text-secondary text-decoration-none">
+                                    <i class="bi bi-arrow-left me-1"></i>Voltar ao site
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

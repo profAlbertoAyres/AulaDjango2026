@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if plano %}
+        Editar Plano de Treino
+    {% else %}
+        Novo Plano de Treino
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <h3>
+        {% if plano %}
+            Editar Plano de Treino
+        {% else %}
+            Novo Plano de Treino
+        {% endif %}
+    </h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row mb-3">
+
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Aluno</label>
+                {{ form.aluno }}
+                {% for error in form.aluno.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <label class="form-label">Início</label>
+                {{ form.inicio }}
+                {% for error in form.inicio.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <label class="form-label">Final</label>
+                {{ form.final }}
+                {% for error in form.final.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Status</label>
+                {{ form.status }}
+                {% for error in form.status.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Descrição</label>
+                {{ form.descricao }}
+                {% for error in form.descricao.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <button type="submit" class="btn btn-primary">
+                    Salvar
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+{% endblock %}

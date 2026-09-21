@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Alterar senha | Personal Trainer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/base/variaveis.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base/layout-site.css' %}">
+ {% endblock %}
+
+
+{% block content %}
+<section class="py-secao">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card card-fitness shadow-sm">
+          <div class="card-body p-4">
+            <h2 class="titulo-secao mb-4">Alterar senha</h2>
+
+            {% if form.errors %}
+              <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Verifique os campos abaixo e tente novamente.
+              </div>
+            {% endif %}
+
+            <form method="post">
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label for="{{ form.old_password.id_for_label }}" class="form-label fw-semibold">Senha atual</label>
+                {{ form.old_password }}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ form.new_password1.id_for_label }}" class="form-label fw-semibold">Nova senha</label>
+                {{ form.new_password1 }}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ form.new_password2.id_for_label }}" class="form-label fw-semibold">Confirmar nova senha</label>
+                {{ form.new_password2 }}
+              </div>
+
+              <button type="submit" class="btn btn-fitness w-100">
+                <i class="bi bi-shield-lock me-1"></i>Salvar nova senha
+              </button>
+            </form>
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

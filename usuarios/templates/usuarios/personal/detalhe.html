@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalhes do Personal | {{ personal.nome }} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Perfil do Personal</h3>
+    <div class="d-flex gap-2">
+        <a href="{% url 'usuarios:personal_editar' pk=personal.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Editar
+        </a>
+        <a href="{% url 'usuarios:personal_lista' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Card de Dados Pessoais -->
+    <div class="col-lg-4 col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person-vcard me-2"></i>Informações Pessoais
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="user-avatar mx-auto mb-2" style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                    <h5 class="mb-1">{{ personal.nome }}</h5>
+                    <span class="badge bg-primary">CREF {{ personal.cref }}</span>
+                </div>
+
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Celular:</span>
+                        <strong>{{ personal.celular|default:"-" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Cidade:</span>
+                        <strong>{{ personal.cidade|default:"-" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">E-mail:</span>
+                        <strong>{{ personal.user.email|default:"-" }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-md-7">
+        <div class="card">
+            <div class="card-header card-header-light">
+                <i class="bi bi-award me-2"></i>Especialidade
+            </div>
+            <div class="card-body">
+                <p class="mb-0 text-secondary">
+                    {{ personal.especialidade|default:"Nenhuma especialidade informada." }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

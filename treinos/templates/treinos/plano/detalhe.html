@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalhes do Plano | {{ plano.aluno.nome }} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Plano de Treino</h3>
+    <div class="d-flex gap-2">
+        <a href="{% url 'treinos:plano_editar' pk=plano.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Editar
+        </a>
+        <a href="{% url 'treinos:plano_lista' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Card com dados do plano -->
+    <div class="col-lg-4 col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clipboard-pulse me-2"></i>Informações do Plano
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Aluno:</span>
+                        <strong>{{ plano.aluno.nome }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Início:</span>
+                        <strong>{{ plano.inicio|date:"d/m/Y" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Final:</span>
+                        <strong>{{ plano.final|date:"d/m/Y"|default:"-" }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-secondary">Status:</span>
+                        <strong>{{ plano.get_status_display }}</strong>
+                    </li>
+                </ul>
+                {% if plano.descricao %}
+                    <hr>
+                    <p class="text-secondary mb-0">{{ plano.descricao|linebreaks }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessões em acordeon -->
+    <div class="col-lg-8 col-md-7">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Sessões de Treino</h5>
+            <a href="{% url 'treinos:sessao_nova' plano_pk=plano.pk %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Adicionar Sessão
+            </a>
+        </div>
+
+        {% if sessoes %}
+            <div class="accordion" id="accordionSessoes">
+                {% for sessao in sessoes %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ sessao.pk }}">
+                            <button class="accordion-button collapsed" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-{{ sessao.pk }}"
+                                    aria-expanded="false"
+                                    aria-controls="collapse-{{ sessao.pk }}">
+                                {{ sessao.ordem }}. {{ sessao.nome }}
+                            </button>
+                        </h2>
+                        <div id="collapse-{{ sessao.pk }}" class="accordion-collapse collapse"
+                             aria-labelledby="heading-{{ sessao.pk }}" data-bs-parent="#accordionSessoes">
+                            <div class="accordion-body">
+
+                                {% if sessao.observacao %}
+                                    <p class="text-secondary">{{ sessao.observacao }}</p>
+                                {% endif %}
+
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                        <tr>
+                                            <th>Exercício</th>
+                                            <th>Séries</th>
+                                            <th>Repetições</th>
+                                            <th>Carga</th>
+                                            <th>Descanso</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in sessao.exercicios_da_sessao.all %}
+                                            <tr>
+                                                <td>{{ item.exercicio.nome }}</td>
+                                                <td>{{ item.series }}</td>
+                                                <td>{{ item.repeticoes }}</td>
+                                                <td>{{ item.carga|default:"-" }}</td>
+                                                <td>{{ item.tempo_descanso|default:"-" }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">
+                                                    Nenhum exercício cadastrado nessa sessão.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'treinos:sessao_editar' plano_pk=plano.pk sessao_pk=sessao.pk %}"
+                                       class="btn btn-info btn-sm">
+                                        <i class="bi bi-pencil-square me-1"></i> Editar Sessão
+                                    </a>
+                                    <form method="post"
+                                          action="{% url 'treinos:sessao_excluir' plano_pk=plano.pk sessao_pk=sessao.pk %}"
+                                          id="form-excluir-sessao-{{ sessao.pk }}">
+                                        {% csrf_token %}
+                                        <button
+                                                type="button"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="confirmarAcao(this)"
+                                                data-form="form-excluir-sessao-{{ sessao.pk }}"
+                                                data-titulo="Excluir sessão?"
+                                                data-mensagem="Tem certeza que deseja excluir a sessão <strong>{{ sessao.nome }}</strong>?<br><small class='text-muted'>Essa ação não pode ser desfeita.</small>"
+                                                data-texto-confirmar="Sim, excluir"
+                                        >
+                                            <i class="bi bi-trash-fill me-1"></i> Excluir Sessão
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-secondary">Nenhuma sessão cadastrada ainda.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

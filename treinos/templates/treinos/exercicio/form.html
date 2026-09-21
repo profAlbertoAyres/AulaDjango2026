@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if exercicio %}
+        Editar Exercício
+    {% else %}
+        Novo Exercício
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <h3>
+        {% if exercicio %}
+            Editar Exercício
+        {% else %}
+            Novo Exercício
+        {% endif %}
+    </h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row mb-3">
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Nome</label>
+                {{ form.nome }}
+                {% for error in form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Descrição</label>
+                {{ form.descricao }}
+                {% for error in form.descricao.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Grupo Muscular</label>
+                {{ form.grupo_muscular }}
+                {% for error in form.grupo_muscular.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <button type="submit" class="btn btn-primary">
+                    Salvar
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+{% endblock %}

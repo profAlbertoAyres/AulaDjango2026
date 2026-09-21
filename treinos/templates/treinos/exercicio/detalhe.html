@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalhes do Exercício | {{ exercicio.nome }} {% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Detalhes do Exercício</h3>
+    <div class="d-flex gap-2">
+        <a href="{% url 'treinos:exercicio_editar' pk=exercicio.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Editar
+        </a>
+        <a href="{% url 'treinos:exercicio_lista' %}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clipboard-pulse me-2"></i>Informações Gerais
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="user-avatar mx-auto mb-2" style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="bi bi-lightning-fill"></i>
+                    </div>
+                    <h5 class="mb-1">{{ exercicio.nome }}</h5>
+                    {% if exercicio.grupo_muscular %}
+                        <span class="badge bg-primary">{{ exercicio.grupo_muscular }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-md-7">
+        <div class="card">
+            <div class="card-header card-header-light">
+                <i class="bi bi-file-text me-2"></i>Descrição
+            </div>
+            <div class="card-body">
+                <p class="mb-0 text-secondary">
+                    {{ exercicio.descricao|default:"Nenhuma descrição cadastrada."|linebreaks }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

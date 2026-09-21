@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %} Alunos {% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Alunos</h4>
+        <a href="{% url 'usuarios:aluno_novo' %}" class="btn btn-primary">
+            + Novo Aluno
+        </a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Sexo</th>
+                <th>Nascimento</th>
+                <th>Celular</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for aluno in alunos %}
+                <tr>
+                    <td>{{ aluno.nome }}</td>
+                    <td>{{ aluno.sexo|default:"-" }}</td>
+                    <td>{{ aluno.nascimento|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ aluno.celular|default:"-" }}</td>
+                    <td class="d-flex justify-content-center align-items-center gap-1">
+                        <a href="{% url 'usuarios:aluno_detalhe' pk=aluno.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye-fill"></i></a>
+                        <a href="{% url 'usuarios:aluno_editar' pk=aluno.pk %}"
+                           class="btn btn-info btn-sm">
+                            <i class="bi bi-pencil-square"></i></a>
+                        <form method="post" action="{% url 'usuarios:aluno_excluir' pk=aluno.pk %}"
+                              id="form-excluir-aluno-{{ aluno.pk }}">
+                            {% csrf_token %}
+                            <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="confirmarAcao(this)"
+                                    data-form="form-excluir-aluno-{{ aluno.pk }}"
+                                    data-titulo="Excluir aluno?"
+                                    data-mensagem="Tem certeza que deseja excluir <strong>{{ aluno.nome }}</strong>?<br><small class='text-muted'>Essa ação não pode ser desfeita.</small>"
+                                    data-texto-confirmar="Sim, excluir"
+                            >
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum Aluno cadastrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

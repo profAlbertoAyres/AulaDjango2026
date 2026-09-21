@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if sessao_pk %}
+        Editar Sessão
+    {% else %}
+        Nova Sessão
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <h3>
+        {% if sessao_pk %}
+            Editar Sessão
+        {% else %}
+            Nova Sessão
+        {% endif %}
+        <small class="text-secondary">- {{ plano.aluno.nome }}</small>
+    </h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Dados da sessão -->
+        <div class="row mb-3">
+            <div class="col-md-8 mb-2">
+                <label class="form-label">Nome</label>
+                {{ form.nome }}
+                {% for error in form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Ordem</label>
+                {{ form.ordem }}
+                {% for error in form.ordem.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Observação</label>
+                {{ form.observacao }}
+                {% for error in form.observacao.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr>
+
+        <h5 class="mb-3">Exercícios</h5>
+
+        {{ formset.management_form }}
+
+        {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+                {% for error in formset.non_form_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-3 mb-3" id="grid-exercicios">
+            {% for exercicio_form in formset %}
+                <div class="col-md-4 card-exercicio">
+                    <div class="card h-100 position-relative">
+                        <div class="card-body">
+
+                            {{ exercicio_form.id }}
+
+                            {% if exercicio_form.DELETE %}
+                                <div class="form-check position-absolute top-0 end-0 m-2">
+                                    {{ exercicio_form.DELETE }}
+                                    <label class="form-check-label small text-danger">Excluir</label>
+                                </div>
+                            {% endif %}
+
+                            <div class="mb-2">
+                                <label class="form-label small">Exercício</label>
+                                {{ exercicio_form.exercicio }}
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small">Séries</label>
+                                    {{ exercicio_form.series }}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Repetições</label>
+                                    {{ exercicio_form.repeticoes }}
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small">Carga</label>
+                                    {{ exercicio_form.carga }}
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Descanso</label>
+                                    {{ exercicio_form.tempo_descanso }}
+                                </div>
+                            </div>
+
+                            <div class="mb-1">
+                                <label class="form-label small">Ordem</label>
+                                {{ exercicio_form.ordem }}
+                            </div>
+
+                            {% for field in exercicio_form %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ field.label }}: {{ error }}</div>
+                                {% endfor %}
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="col-md-4">
+                <div class="card h-100 border-dashed d-flex align-items-center justify-content-center"
+                     id="btn-add-exercicio" role="button" style="min-height: 180px; cursor: pointer;">
+                    <div class="text-center text-secondary">
+                        <i class="bi bi-plus-lg fs-3"></i>
+                        <div>Adicionar exercício</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'treinos:plano_detalhe' pk=plano.pk %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+
+    </form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('btn-add-exercicio').addEventListener('click', function () {
+        const totalFormsInput = document.getElementById('id_exercicios_da_sessao-TOTAL_FORMS');
+        const totalForms = parseInt(totalFormsInput.value);
+
+        const grid = document.getElementById('grid-exercicios');
+        const ultimoCard = grid.querySelector('.card-exercicio:last-of-type');
+
+        const novoCard = ultimoCard.cloneNode(true);
+
+        novoCard.innerHTML = novoCard.innerHTML.replaceAll(
+            `exercicios_da_sessao-${totalForms - 1}-`,
+            `exercicios_da_sessao-${totalForms}-`
+        );
+
+        novoCard.querySelectorAll('input, select').forEach(function (campo) {
+            if (campo.type === 'checkbox') {
+                campo.checked = false;
+            } else {
+                campo.value = '';
+            }
+        });
+
+        // insere o novo card antes do card tracejado de "adicionar"
+        grid.insertBefore(novoCard, document.getElementById('btn-add-exercicio').parentElement);
+        totalFormsInput.value = totalForms + 1;
+    });
+</script>
+{% endblock %}

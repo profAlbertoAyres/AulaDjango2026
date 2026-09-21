@@ -1,0 +1,30 @@
+/* ==========================================================================
+   VARIÁVEIS DE ESTILO (IDENTIDADE VISUAL FITNESS)
+   ========================================================================== */
+
+:root {
+    /* Cores Principais */
+    --cor-principal: #0d1b2a;
+    --cor-destaque: #ff5722;
+    --cor-destaque-hover: #e04818;
+    --cor-fundo: #f8f9fa;
+    --cor-fundo-card: #ffffff;
+
+    /* Cores de Texto */
+    --cor-texto: #212529;
+    --cor-texto-mutado: #6c757d;
+    --cor-texto-claro: #ffffff;
+
+    /* Tipografia */
+    --fonte-principal: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+    /* Tamanhos de Fonte */
+    --tamanho-titulo-hero: 2.5rem;
+    --tamanho-titulo: 2rem;
+    --tamanho-subtitulo: 1.25rem;
+    --tamanho-texto: 1rem;
+
+    /* Espaçamentos e Bordas */
+    --espacamento-secao: 4rem;
+    --raio-borda: 0.5rem;
+}

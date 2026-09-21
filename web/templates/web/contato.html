@@ -1,0 +1,119 @@
+{% extends 'base_site.html' %}
+
+{% block title %}Contato | Lia Silva Personal Trainer{% endblock %}
+
+{% block content %}
+
+<section class="py-secao bg-secao-alternada">
+    <div class="container">
+        <!-- Título da Página -->
+        <div class="text-center mb-5">
+            <h1 class="fw-bold">Fale Conosco</h1>
+            <p class="text-muted">Tire suas dúvidas, envie sugestões ou agende sua avaliação física em Cacoal - RO.</p>
+        </div>
+
+        <div class="row g-5 justify-content-center">
+            <!-- Informações Rápidas de Contato -->
+            <div class="col-lg-4">
+                <div class="bg-white p-4 rounded shadow-sm h-100">
+                    <h2 class="h5 fw-bold mb-4 border-bottom pb-2">Informações de Contato</h2>
+                    
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="bi bi-clock text-danger fs-4 me-3"></i>
+                        <div>
+                            <p class="fw-semibold mb-0">Atendimento:</p>
+                            <p class="text-muted small mb-0">Segunda a Sexta: 06h às 21h<br>Sábado: 08h às 12h</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="bi bi-geo-alt text-danger fs-4 me-3"></i>
+                        <div>
+                            <p class="fw-semibold mb-0">Localização:</p>
+                            <p class="text-muted small mb-0">Atendimento em Academias e Domicílio<br>Cacoal - Rondônia</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="bi bi-envelope text-danger fs-4 me-3"></i>
+                        <div>
+                            <p class="fw-semibold mb-0">E-mail:</p>
+                            <p class="text-muted small mb-0">contato@liasilvapersonal.com.br</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-whatsapp text-danger fs-4 me-3"></i>
+                        <div>
+                            <p class="fw-semibold mb-0">WhatsApp:</p>
+                            <p class="text-muted small mb-0">(69) 99999-8888</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário de Contato -->
+            <div class="col-lg-7">
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h2 class="h5 fw-bold mb-4 border-bottom pb-2">Envie uma Mensagem</h2>
+                    
+                    <form>
+                        <div class="row g-3">
+                            <!-- Campo Nome -->
+                            <div class="col-md-6">
+                                <label for="nome" class="form-label fw-semibold">Nome Completo</label>
+                                <input type="text" id="nome" name="nome" class="form-control" placeholder="Seu nome" required>
+                            </div>
+
+                            <!-- Campo E-mail -->
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-semibold">E-mail</label>
+                                <input type="email" id="email" name="email" class="form-control" placeholder="seu@email.com" required>
+                            </div>
+
+                            <!-- Campo Telefone -->
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label fw-semibold">Telefone / WhatsApp</label>
+                                <input type="tel" id="telefone" name="telefone" class="form-control" placeholder="(69) 99999-0000">
+                            </div>
+
+                            <!-- Campo Tipo de Mensagem -->
+                            <div class="col-md-6">
+                                <label for="tipo_mensagem" class="form-label fw-semibold">Tipo de Mensagem</label>
+                                <select id="tipo_mensagem" name="tipo_mensagem" class="form-select" required>
+                                    <option value="" selected disabled>Selecione uma opção...</option>
+                                    <option value="duvida">Dúvida</option>
+                                    <option value="elogio">Elogio</option>
+                                    <option value="sugestao">Sugestão</option>
+                                    <option value="reclamacao">Reclamação</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+
+                            <!-- Campo Assunto -->
+                            <div class="col-12">
+                                <label for="assunto" class="form-label fw-semibold">Assunto</label>
+                                <input type="text" id="assunto" name="assunto" class="form-control" placeholder="Assunto da mensagem" required>
+                            </div>
+
+                            <!-- Campo Mensagem -->
+                            <div class="col-12">
+                                <label for="mensagem" class="form-label fw-semibold">Mensagem</label>
+                                <textarea id="mensagem" name="mensagem" rows="5" class="form-control" placeholder="Escreva sua mensagem aqui..." required></textarea>
+                            </div>
+
+                            <!-- Botão de Envio -->
+                            <div class="col-12 text-end mt-4">
+                                <button type="submit" class="btn btn-fitness w-100 w-md-auto">
+                                    <i class="bi bi-send me-2"></i>Enviar Mensagem
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

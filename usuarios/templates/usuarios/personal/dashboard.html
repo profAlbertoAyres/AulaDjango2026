@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+
+    <h3 class="titulo-secao mb-4">Dashboard</h3>
+
+    <!-- Cards de métricas -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-fitness text-center p-3">
+                <div class="fs-2 fw-bold">{{ total_alunos }}</div>
+                <div class="text-secondary">Alunos</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-fitness text-center p-3">
+                <div class="fs-2 fw-bold">{{ total_planos_ativos }}</div>
+                <div class="text-secondary">Planos ativos</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-fitness text-center p-3">
+                <div class="fs-2 fw-bold">{{ total_planos_vencendo }}</div>
+                <div class="text-secondary">Vencendo em 15 dias</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card card-fitness text-center p-3">
+                <div class="fs-2 fw-bold">{{ total_exercicios }}</div>
+                <div class="text-secondary">Exercícios cadastrados</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- Planos vencendo em breve -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-fitness h-100">
+                <div class="card-header">
+                    <i class="bi bi-alarm me-2"></i>Planos vencendo em breve
+                </div>
+                <div class="card-body">
+                    {% if planos_vencendo %}
+                        <table class="table table-sm mb-0">
+                            <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Final</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for plano in planos_vencendo %}
+                                <tr>
+                                    <td>{{ plano.aluno.nome }}</td>
+                                    <td>{{ plano.final|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'treinos:plano_detalhe' pk=plano.pk %}">Ver</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-secondary mb-0">Nenhum plano vencendo nos próximos 15 dias.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Alunos sem plano ativo -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-fitness h-100">
+                <div class="card-header">
+                    <i class="bi bi-person-x me-2"></i>Alunos sem plano ativo
+                </div>
+                <div class="card-body">
+                    {% if alunos_sem_plano %}
+                        <table class="table table-sm mb-0">
+                            <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for aluno in alunos_sem_plano %}
+                                <tr>
+                                    <td>{{ aluno.nome }}</td>
+                                    <td>
+                                        <a href="{% url 'treinos:plano_novo' %}">Criar plano</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-secondary mb-0">Todos os alunos têm um plano ativo.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Planos por status -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-fitness h-100">
+                <div class="card-header">
+                    <i class="bi bi-bar-chart me-2"></i>Planos por status
+                </div>
+                <div class="card-body">
+                    {% if planos_por_status %}
+                        <table class="table table-sm mb-0">
+                            <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Quantidade</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in planos_por_status %}
+                                <tr>
+                                    <td>{{ item.status_display }}</td>
+                                    <td>{{ item.total }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-secondary mb-0">Nenhum plano cadastrado ainda.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

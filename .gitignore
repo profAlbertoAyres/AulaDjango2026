@@ -1,0 +1,34 @@
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+#python
+__pycach__/
+*.py[cod]
+*$py.class
+
+#Django
+db.sqlite3
+
+#variaveis de ambiente
+.env
+.env.*
+
+#arquivos de mídia
+media/
+
+# IDE
+.idea/
+.vscode/
+
+#sistemas operacionais
+.DS_Store
+Thumbs.db
+
+#logs
+*.log
+
+base.html
+layout.css
+base.js

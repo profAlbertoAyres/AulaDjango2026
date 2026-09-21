@@ -1,0 +1,105 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: var(--fonte-principal);
+    color: var(--cor-texto);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+
+.py-secao {
+    padding-top: var(--espacamento-secao);
+    padding-bottom: var(--espacamento-secao);
+}
+
+.bg-secao-alternada {
+    background-color: var(--cor-fundo);
+}
+
+.btn-fitness {
+    background-color: var(--cor-destaque);
+    color: var(--cor-texto-claro);
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--raio-borda);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-fitness:hover,
+.btn-fitness:focus {
+    background-color: var(--cor-destaque-hover);
+    color: var(--cor-texto-claro);
+}
+
+.hero-titulo {
+    font-size: var(--tamanho-titulo-hero);
+    color: var(--cor-principal);
+}
+
+.hero-imagem {
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: var(--raio-borda);
+}
+
+/* Detalhe visual nos títulos das seções */
+.titulo-secao {
+    color: var(--cor-principal);
+    font-size: var(--tamanho-titulo);
+    border-left: 4px solid var(--cor-destaque);
+    padding-left: 0.75rem;
+}
+
+/* Estilo para os Cards */
+.card-fitness {
+    border: none;
+    background-color: var(--cor-fundo-card);
+    border-radius: var(--raio-borda);
+    transition: transform 0.2s ease;
+}
+
+.card-fitness:hover {
+    transform: translateY(-4px);
+}
+
+/* Navegação Estilo App (Bottom Bar) */
+.bottom-nav-link {
+    color: var(--cor-texto-mutado);
+    text-decoration: none;
+    font-size: 0.75rem;
+}
+
+.bottom-nav-link i {
+    font-size: 1.25rem;
+}
+
+.bottom-nav-link:hover,
+.bottom-nav-link.active {
+    color: var(--cor-destaque);
+}
+
+
+.border-dashed {
+    border: 2px dashed var(--cor-texto-mutado) !important;
+    border-radius: var(--raio-borda);
+}
+
+.border-dashed:hover {
+    border-color: var(--cor-destaque) !important;
+}
+
+@media (max-width: 991.98px) {
+    body {
+        padding-bottom: 65px;
+    }
+}

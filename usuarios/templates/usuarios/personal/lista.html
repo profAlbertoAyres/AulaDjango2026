@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %} Personals {% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Personal Trainers</h4>
+        <a href="{% url 'usuarios:personal_novo' %}" class="btn btn-primary">
+            + Novo Personal Trainer
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>CREF</th>
+                <th>Celular</th>
+                <th>Cidade</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for personal in personals %}
+                <tr>
+                    <td>{{ personal.nome }}</td>
+                    <td>{{ personal.cref|default:"-" }}</td>
+                    <td>{{ personal.celular|default:"-" }}</td>
+                    <td>{{ personal.cidade|default:"-" }}</td>
+                    <td class="d-flex justify-content-center align-items-center gap-1">
+                        <a href="{% url 'usuarios:personal_detalhe' pk=personal.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye-fill"></i></a>
+                        <a href="{% url 'usuarios:personal_editar' pk=personal.pk %}"
+                           class="btn btn-info btn-sm">
+                            <i class="bi bi-pencil-square"></i></a>
+                        <form method="post" action="{% url 'usuarios:personal_excluir' pk=personal.pk %}"
+                              id="form-excluir-personal-{{ personal.pk }}">
+                            {% csrf_token %}
+                            <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="confirmarAcao(this)"
+                                    data-form="form-excluir-personal-{{ personal.pk }}"
+                                    data-titulo="Excluir personal?"
+                                    data-mensagem="Tem certeza que deseja excluir <strong>{{ personal.nome }}</strong>?<br><small class='text-muted'>Essa ação não pode ser desfeita.</small>"
+                                    data-texto-confirmar="Sim, excluir"
+                            >
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum Personal cadastrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

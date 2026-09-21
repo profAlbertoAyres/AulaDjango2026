@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %} Exercícios {% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Exercícios</h4>
+        <a href="{% url 'treinos:exercicio_novo' %}" class="btn btn-primary">
+            + Novo Exercício
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Grupo Muscular</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for exercicio in exercicios %}
+                <tr>
+                    <td>{{ exercicio.nome }}</td>
+                    <td>{{ exercicio.grupo_muscular|default:"-" }}</td>
+                    <td class="d-flex justify-content-center align-items-center gap-1">
+                        <a href="{% url 'treinos:exercicio_detalhe' pk=exercicio.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye-fill"></i></a>
+                        <a href="{% url 'treinos:exercicio_editar' pk=exercicio.pk %}"
+                           class="btn btn-info btn-sm">
+                            <i class="bi bi-pencil-square"></i></a>
+                        <form method="post" action="{% url 'treinos:exercicio_excluir' pk=exercicio.pk %}"
+                              id="form-excluir-exercicio-{{ exercicio.pk }}">
+                            {% csrf_token %}
+                            <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="confirmarAcao(this)"
+                                    data-form="form-excluir-exercicio-{{ exercicio.pk }}"
+                                    data-titulo="Excluir exercício?"
+                                    data-mensagem="Tem certeza que deseja excluir <strong>{{ exercicio.nome }}</strong>?<br><small class='text-muted'>Essa ação não pode ser desfeita.</small>"
+                                    data-texto-confirmar="Sim, excluir"
+                            >
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">Nenhum exercício cadastrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %} Planos de Treino {% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Planos de Treino</h4>
+        <a href="{% url 'treinos:plano_novo' %}" class="btn btn-primary">
+            + Novo Plano
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Aluno</th>
+                <th>Início</th>
+                <th>Final</th>
+                <th>Status</th>
+                <th class="text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for plano in planos %}
+                <tr>
+                    <td>{{ plano.aluno.nome }}</td>
+                    <td>{{ plano.inicio|date:"d/m/Y" }}</td>
+                    <td>{{ plano.final|date:"d/m/Y"|default:"-" }}</td>
+                    <td>{{ plano.get_status_display }}</td>
+                    <td class="d-flex justify-content-center align-items-center gap-1">
+                        <a href="{% url 'treinos:plano_detalhe' pk=plano.pk %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye-fill"></i></a>
+                        <a href="{% url 'treinos:plano_editar' pk=plano.pk %}"
+                           class="btn btn-info btn-sm">
+                            <i class="bi bi-pencil-square"></i></a>
+                        <form method="post" action="{% url 'treinos:plano_excluir' pk=plano.pk %}"
+                              id="form-excluir-plano-{{ plano.pk }}">
+                            {% csrf_token %}
+                            <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="confirmarAcao(this)"
+                                    data-form="form-excluir-plano-{{ plano.pk }}"
+                                    data-titulo="Excluir plano?"
+                                    data-mensagem="Tem certeza que deseja excluir o plano de <strong>{{ plano.aluno.nome }}</strong>?<br><small class='text-muted'>Essa ação não pode ser desfeita.</small>"
+                                    data-texto-confirmar="Sim, excluir"
+                            >
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum plano cadastrado</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if user_form %}
+        Novo Personal Trainer
+    {% else %}
+        Editar Personal Trainer
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <h3>
+        {% if user_form %}
+            Novo Personal
+        {% else %}
+            Editar Personal
+        {% endif %}
+    </h3>
+
+    <form method="post">
+        {% csrf_token %}
+        {% if user_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in user_form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if personal_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in personal_form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if user_form %}
+
+            <h6>Dados de Acesso</h6>
+
+            <div class="row mb-3">
+
+                <div class="col-md-5 mb-2">
+                    <label class="form-label">Usuário</label>
+                    {{ user_form.username }}
+                    {% for error in user_form.username.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-7 mb-2">
+                    <label class="form-label">E-mail</label>
+                    {{ user_form.email }}
+                    {% for error in user_form.email.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Senha</label>
+                    {{ user_form.password1 }}
+                    {% for error in user_form.password1.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Confirmação de senha</label>
+                    {{ user_form.password2 }}
+                    {% for error in user_form.password2.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <h6>Dados do personal</h6>
+
+        {% endif %}
+
+        <div class="row mb-3">
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Nome</label>
+                {{ personal_form.nome }}
+                {% for error in personal_form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">CREF</label>
+                {{ personal_form.cref }}
+                {% for error in personal_form.cref.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Celular</label>
+                {{ personal_form.celular }}
+                {% for error in personal_form.celular.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Cidade</label>
+                {{ personal_form.cidade }}
+                {% for error in personal_form.cidade.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Especialidade</label>
+                {{ personal_form.especialidade }}
+                {% for error in personal_form.especialidade.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <button type="submit" class="btn btn-primary">
+                    Salvar
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+{% endblock %}

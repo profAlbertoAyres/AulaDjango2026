@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if user_form %}
+        Novo Aluno
+    {% else %}
+        Editar Aluno
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <h3>
+        {% if user_form %}
+            Novo Aluno
+        {% else %}
+            Editar Aluno
+        {% endif %}
+    </h3>
+
+    <form method="post">
+        {% csrf_token %}
+        {% if user_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in user_form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if aluno_form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in aluno_form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if user_form %}
+
+            <h6>Dados de Acesso</h6>
+
+            <div class="row mb-3">
+
+                <div class="col-md-5 mb-2">
+                    <label class="form-label">Usuário</label>
+                    {{ user_form.username }}
+                    {% for error in user_form.username.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-7 mb-2">
+                    <label class="form-label">E-mail</label>
+                    {{ user_form.email }}
+                    {% for error in user_form.email.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Senha</label>
+                    {{ user_form.password1 }}
+                    {% for error in user_form.password1.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Confirmação de senha</label>
+                    {{ user_form.password2 }}
+                    {% for error in user_form.password2.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <h6>Dados do aluno</h6>
+
+        {% endif %}
+
+        <div class="row mb-3">
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Nome</label>
+                {{ aluno_form.nome }}
+                {% for error in aluno_form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <label class="form-label">CEP</label>
+                {{ aluno_form.cep }}
+                {% for error in aluno_form.cep.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-9 mb-2">
+                <label class="form-label">Endereço</label>
+                {{ aluno_form.endereco }}
+                {% for error in aluno_form.endereco.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-5 mb-2">
+                <label class="form-label">Bairro</label>
+                {{ aluno_form.bairro }}
+                {% for error in aluno_form.bairro.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-5 mb-2">
+                <label class="form-label">Cidade</label>
+                {{ aluno_form.cidade }}
+                {% for error in aluno_form.cidade.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <label class="form-label">Estado</label>
+                {{ aluno_form.estado }}
+                {% for error in aluno_form.estado.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Celular</label>
+                {{ aluno_form.celular }}
+                {% for error in aluno_form.celular.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Nascimento</label>
+                {{ aluno_form.nascimento }}
+                {% for error in aluno_form.nascimento.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4 mb-2">
+                <label class="form-label">Sexo</label>
+                {{ aluno_form.sexo }}
+                {% for error in aluno_form.sexo.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <label class="form-label">Objetivo</label>
+                {{ aluno_form.objetivo }}
+                {% for error in aluno_form.objetivo.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 mb-2">
+                <button type="submit" class="btn btn-primary">
+                    Salvar
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+{% endblock %}

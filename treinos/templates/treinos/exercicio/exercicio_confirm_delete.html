@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Exercício{% endblock %}
+
+{% block content %}
+
+    <h3>Excluir Exercício</h3>
+
+    <p>Tem certeza que deseja excluir o exercício "{{ exercicio.nome }}"?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        <a href="{% url 'treinos:exercicio_lista' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+{% endblock %}

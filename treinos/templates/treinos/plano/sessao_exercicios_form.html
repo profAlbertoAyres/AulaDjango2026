@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Exercícios da sessão{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <h5 class="mb-1">{{ sessao.nome }}</h5>
+    <p class="text-muted mb-4">Plano de {{ sessao.plano_treino.aluno.nome }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {% if formset.non_form_errors %}
+            <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table" id="tabela-exercicios">
+                <thead>
+                <tr>
+                    <th>Exercício</th><th>Séries</th><th>Reps</th><th>Carga</th><th>Descanso</th><th>Ordem</th><th class="text-center">Excluir</th>
+                </tr>
+                </thead>
+                <tbody id="linhas-exercicio">
+                {% for ex_form in formset %}
+                    <tr>
+                        <td>{{ ex_form.exercicio }}{{ ex_form.id }}
+                            {% if ex_form.exercicio.errors %}<div class="text-danger small">{{ ex_form.exercicio.errors }}</div>{% endif %}
+                        </td>
+                        <td>{{ ex_form.series }}</td>
+                        <td>{{ ex_form.repeticoes }}</td>
+                        <td>{{ ex_form.carga }}</td>
+                        <td>{{ ex_form.tempo_descanso }}</td>
+                        <td>{{ ex_form.ordem }}</td>
+                        <td class="text-center">{% if ex_form.instance.pk %}{{ ex_form.DELETE }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <template id="template-exercicio-vazio">
+            <tr>
+                <td>{{ formset.empty_form.exercicio }}</td>
+                <td>{{ formset.empty_form.series }}</td>
+                <td>{{ formset.empty_form.repeticoes }}</td>
+                <td>{{ formset.empty_form.carga }}</td>
+                <td>{{ formset.empty_form.tempo_descanso }}</td>
+                <td>{{ formset.empty_form.ordem }}</td>
+                <td class="text-center"></td>
+            </tr>
+        </template>
+
+        <button type="button" id="btn-add-exercicio" class="btn btn-outline-primary btn-sm mb-4">
+            <i class="bi bi-plus-lg"></i> Adicionar exercício
+        </button>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Salvar exercícios</button>
+            <a href="{% url 'treinos:plano_detalhe' pk=sessao.plano_treino.pk %}" class="btn btn-outline-secondary">Voltar ao plano</a>
+        </div>
+    </form>
+
+</div>
+
+<script>
+document.getElementById('btn-add-exercicio').addEventListener('click', function () {
+    const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    const idx = parseInt(totalForms.value);
+
+    const html = document.getElementById('template-exercicio-vazio').innerHTML.replaceAll('__prefix__', idx);
+    const wrapper = document.createElement('tbody');
+    wrapper.innerHTML = html;
+
+    document.getElementById('linhas-exercicio').appendChild(wrapper.firstElementChild);
+    totalForms.value = idx + 1;
+});
+</script>
+{% endblock %}
