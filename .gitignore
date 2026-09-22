@@ -28,7 +28,3 @@ Thumbs.db
 
 #logs
 *.log
-
-base.html
-layout.css
-base.js

@@ -1,0 +1,494 @@
+/* ==========================================================================
+   PersonalPro - Admin CSS
+   Sistema de Gerenciamento de Personal Trainer
+   ========================================================================== */
+
+/* ==========================================================================
+   1. VARIÁVEIS CSS (Design Tokens)
+   ========================================================================== */
+:root {
+    /* Paleta principal */
+    --primary: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --secondary: #6c757d;
+    --success: #198754;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #0dcaf0;
+
+    /* Sidebar */
+    --sidebar-bg: #101828;
+    --sidebar-bg-secondary: #16213a;
+    --sidebar-hover: #1d2b47;
+    --sidebar-active: #0d6efd;
+    --sidebar-text: #adb5bd;
+    --sidebar-text-active: #ffffff;
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 80px;
+
+    /* Layout geral */
+    --background: #f4f6f9;
+    --surface: #ffffff;
+    --border-color: #e5e9f0;
+    --text-primary: #1e2430;
+    --text-secondary: #6c757d;
+
+    /* Navbar */
+    --navbar-height: 64px;
+    --breadcrumb-height: 44px;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06);
+    --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+    --shadow-lg: 0 8px 24px rgba(16, 24, 40, 0.12);
+
+    /* Bordas */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+
+    /* Transições */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+}
+
+/* ==========================================================================
+   2. RESET E BASE
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9375rem;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c9d0da;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ==========================================================================
+   3. WRAPPER GERAL
+   ========================================================================== */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ==========================================================================
+   4. SIDEBAR
+   ========================================================================== */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-secondary) 100%);
+    color: var(--sidebar-text);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1030;
+    display: flex;
+    flex-direction: column;
+    transition: width var(--transition-base), transform var(--transition-base);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Sidebar recolhida (desktop) */
+.app-wrapper.sidebar-collapsed .sidebar {
+    width: var(--sidebar-width-collapsed);
+    min-width: var(--sidebar-width-collapsed);
+}
+
+.app-wrapper.sidebar-collapsed .sidebar .menu-label,
+.app-wrapper.sidebar-collapsed .sidebar .brand-text,
+.app-wrapper.sidebar-collapsed .sidebar .submenu-arrow {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+}
+
+.app-wrapper.sidebar-collapsed .sidebar .submenu {
+    display: none !important;
+}
+
+/* Logo / Marca */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.25rem;
+    height: var(--navbar-height);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-brand i {
+    font-size: 1.6rem;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.sidebar-brand .brand-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: opacity var(--transition-fast);
+}
+
+/* Navegação */
+.sidebar-nav {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem 0.5rem;
+}
+
+.sidebar-nav .nav-item {
+    margin-bottom: 0.15rem;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--sidebar-text);
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    cursor: pointer;
+}
+
+.sidebar-nav .nav-link i.menu-icon {
+    font-size: 1.05rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: var(--sidebar-hover);
+    color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: var(--sidebar-active);
+    color: #fff;
+}
+
+.sidebar-nav .menu-label {
+    flex: 1 1 auto;
+    transition: opacity var(--transition-fast);
+}
+
+.sidebar-nav .submenu-arrow {
+    font-size: 0.75rem;
+    transition: transform var(--transition-base), opacity var(--transition-fast);
+}
+
+.sidebar-nav .nav-link[aria-expanded="true"] .submenu-arrow {
+    transform: rotate(90deg);
+}
+
+/* Submenu */
+.sidebar-nav .submenu {
+    list-style: none;
+    padding-left: 0.5rem;
+    margin: 0.15rem 0 0.35rem 1.15rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-nav .submenu .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.83rem;
+    font-weight: 400;
+    gap: 0.6rem;
+}
+
+.sidebar-nav .submenu .nav-link i {
+    font-size: 0.5rem;
+}
+
+/* Rodapé da sidebar */
+.sidebar-footer {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.35);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   5. ÁREA PRINCIPAL (Content Wrapper)
+   ========================================================================== */
+.main-wrapper {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left var(--transition-base), width var(--transition-base);
+}
+
+.app-wrapper.sidebar-collapsed .main-wrapper {
+    margin-left: var(--sidebar-width-collapsed);
+    width: calc(100% - var(--sidebar-width-collapsed));
+}
+
+/* ==========================================================================
+   6. NAVBAR SUPERIOR
+   ========================================================================== */
+.topbar {
+    height: var(--navbar-height);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    box-shadow: var(--shadow-sm);
+}
+
+.topbar .btn-toggle-sidebar {
+    background: transparent;
+    border: none;
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.topbar .btn-toggle-sidebar:hover {
+    background-color: var(--background);
+}
+
+.topbar .page-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    text-align: center;
+    flex: 1 1 auto;
+}
+
+.topbar .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.topbar .user-menu .user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.topbar .user-menu .user-name {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   8. CONTEÚDO PRINCIPAL
+   ========================================================================== */
+main.content {
+    flex: 1 1 auto;
+    padding: 30px;
+}
+
+/* ==========================================================================
+   9. RODAPÉ
+   ========================================================================== */
+.app-footer {
+    background-color: var(--surface);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   10. CARDS ADMINISTRATIVOS
+   ========================================================================== */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+}
+
+.card-header.card-header-light {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* ==========================================================================
+   12. TABELAS
+   ========================================================================== */
+.table-responsive {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table {
+    margin-bottom: 0;
+    background-color: var(--surface);
+}
+
+
+.table thead th {
+    background-color: var(--sidebar-bg) !important;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border: none;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   13. FORMULÁRIOS
+   ========================================================================== */
+form label {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+}
+
+form label.required::after {
+    content: " *";
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.invalid-feedback {
+    font-size: 0.78rem;
+}
+
+.is-invalid {
+    border-color: var(--danger) !important;
+}
+
+/* ==========================================================================
+   14. RESPONSIVIDADE
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+        min-width: var(--sidebar-width);
+    }
+
+    .app-wrapper.sidebar-mobile-open .sidebar {
+        transform: translateX(0);
+    }
+
+    .main-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .app-wrapper.sidebar-collapsed .main-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.45);
+        z-index: 1025;
+    }
+
+    .app-wrapper.sidebar-mobile-open .sidebar-overlay {
+        display: block;
+    }
+
+    .topbar .page-title {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    main.content {
+        padding: 18px;
+    }
+
+    .topbar .user-menu .user-name {
+        display: none;
+    }
+}
