@@ -65,7 +65,7 @@ Páginas públicas do site: home e contato.
    python -m venv .venv
    ou
    py -m venv .venv
-   venv\Scripts\activate      # Windows
+   .venv\Scripts\activate      # Windows
    source venv/bin/activate   # Linux/Mac
    ```
 
