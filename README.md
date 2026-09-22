@@ -63,6 +63,8 @@ Páginas públicas do site: home e contato.
 2. Crie e ative um ambiente virtual:
    ```bash
    python -m venv .venv
+   ou
+   py -m venv .venv
    venv\Scripts\activate      # Windows
    source venv/bin/activate   # Linux/Mac
    ```
