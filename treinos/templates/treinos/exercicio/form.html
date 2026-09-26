@@ -18,7 +18,7 @@
         {% endif %}
     </h3>
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -55,14 +55,113 @@
                 {% endfor %}
             </div>
 
-            <div class="col-12 mb-2">
-                <button type="submit" class="btn btn-primary">
-                    Salvar
-                </button>
-            </div>
+        </div>
 
+        <hr class="my-4">
+
+        <h5 class="mb-3">Fotos <small class="text-muted">(máximo de 6)</small></h5>
+
+        {{ fotos_formset.management_form }}
+
+        {% if fotos_formset.non_form_errors %}
+            <div class="alert alert-danger">
+                {% for error in fotos_formset.non_form_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+                <div id="fotos-formset" class="row">
+            {% for foto_form in fotos_formset %}
+                <div class="col-md-4 mb-3 foto-form-item {% if not foto_form.instance.pk %}foto-vazia d-none{% endif %}">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                            {% for hidden in foto_form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+
+                            {% if foto_form.instance.pk %}
+                                {# foto já existe: mostra só a imagem atual, sem input de troca #}
+                                {% if foto_form.instance.imagem %}
+                                    <img src="{{ foto_form.instance.imagem.url }}"
+                                         class="img-fluid rounded mb-2" alt="Foto do exercício">
+                                {% endif %}
+                            {% else %}
+                                {# slot novo: mostra o input de upload #}
+                                <label class="form-label">Foto</label>
+                                {{ foto_form.imagem }}
+                                {% for error in foto_form.imagem.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="form-label mt-2">Legenda</label>
+                            {{ foto_form.legenda }}
+                            {% for error in foto_form.legenda.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+
+                            {% if foto_form.instance.pk %}
+                                <div class="form-check mt-2">
+                                    {{ foto_form.DELETE }}
+                                    <label class="form-check-label text-danger">
+                                        Excluir esta foto
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            {% for error in foto_form.non_field_errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="col-md-4 mb-3" id="foto-add-card">
+                <div class="card h-100 d-flex align-items-center justify-content-center text-muted"
+                     id="btn-add-foto" style="cursor: pointer; min-height: 150px;">
+                    <div class="text-center">
+                        <i class="bi bi-plus-circle" style="font-size: 2rem;"></i>
+                        <div class="small mt-1">Adicionar foto</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">
+                Salvar
+            </button>
         </div>
 
     </form>
+    {% block extra_js %}
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const addCard = document.getElementById('foto-add-card');
+                const btnAdd = document.getElementById('btn-add-foto');
+                const vazios = document.querySelectorAll('#fotos-formset .foto-vazia');
+                let proximo = 0;
+
+                if (vazios.length === 0) {
+                    addCard.classList.add('d-none');
+                }
+
+                btnAdd.addEventListener('click', function () {
+                    if (proximo < vazios.length) {
+                        vazios[proximo].classList.remove('d-none');
+                        proximo++;
+                    }
+                    if (proximo >= vazios.length) {
+                        addCard.classList.add('d-none');
+                    }
+                });
+            });
+        </script>
+    {% endblock %}
 
 {% endblock %}

@@ -36,7 +36,7 @@
     </div>
 
     <div class="col-lg-8 col-md-7">
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header card-header-light">
                 <i class="bi bi-file-text me-2"></i>Descrição
             </div>
@@ -44,6 +44,31 @@
                 <p class="mb-0 text-secondary">
                     {{ exercicio.descricao|default:"Nenhuma descrição cadastrada."|linebreaks }}
                 </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header card-header-light">
+                <i class="bi bi-images me-2"></i>Fotos
+            </div>
+            <div class="card-body">
+                {% with fotos=exercicio.fotos.all %}
+                    {% if fotos %}
+                        <div class="row">
+                            {% for foto in fotos %}
+                                <div class="col-md-4 mb-3">
+                                    <img src="{{ foto.imagem.url }}"
+                                         class="img-fluid rounded" alt="{{ foto.legenda|default:exercicio.nome }}">
+                                    {% if foto.legenda %}
+                                        <p class="small text-muted mt-1 mb-0">{{ foto.legenda }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="mb-0 text-secondary">Nenhuma foto cadastrada.</p>
+                    {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>

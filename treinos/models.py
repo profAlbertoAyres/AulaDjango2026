@@ -1,9 +1,15 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from usuarios.models import Aluno
 
 
 # Create your models here.
+
+def foto_exercicio_upload_path(instance, filename):
+    return f'treino/exercicio/{instance.exercicio_id}/{filename}'
+
+
 class Exercicio(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField(blank=True, null=True)
@@ -16,6 +22,44 @@ class Exercicio(models.Model):
 
     def __str__(self):
         return  self.nome
+
+
+class FotoExercicio(models.Model):
+    MAX_FOTOS_POR_EXERCICIO = 6
+
+    exercicio = models.ForeignKey(
+        Exercicio,
+        on_delete=models.CASCADE,
+        related_name='fotos'
+    )
+    imagem = models.ImageField(upload_to=foto_exercicio_upload_path)
+    legenda = models.CharField(max_length=100, blank=True, null=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Foto do Exercício'
+        verbose_name_plural = 'Fotos do Exercício'
+        ordering = ['criado_em']
+
+    def __str__(self):
+        return f'Foto de {self.exercicio.nome} ({self.pk})'
+
+    def clean(self):
+        if not self.exercicio_id:
+            return  # exercício pai ainda não foi salvo, nada a validar ainda
+
+        qs = FotoExercicio.objects.filter(exercicio_id=self.exercicio_id)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.count() >= self.MAX_FOTOS_POR_EXERCICIO:
+            raise ValidationError(
+                f'Este exercício já possui o máximo de '
+                f'{self.MAX_FOTOS_POR_EXERCICIO} fotos.'
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 class PlanoTreino(models.Model):
     STATUS_CHOICES = [

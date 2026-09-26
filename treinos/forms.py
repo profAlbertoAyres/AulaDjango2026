@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import Exercicio, PlanoTreino, SessaoTreino, SessaoExercicio
+from .models import Exercicio, PlanoTreino, SessaoTreino, SessaoExercicio, FotoExercicio
 
 
 class ExercicioForm(forms.ModelForm):
@@ -19,6 +19,30 @@ class ExercicioForm(forms.ModelForm):
             'grupo_muscular': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+
+class FotoExercicioForm(forms.ModelForm):
+    class Meta:
+        model = FotoExercicio
+        fields = ['imagem', 'legenda']
+        labels = {
+            'imagem': 'Foto',
+            'legenda': 'Legenda',
+        }
+        widgets = {
+            'imagem': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'legenda': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+FotoExercicioFormSet = inlineformset_factory(
+    Exercicio,
+    FotoExercicio,
+    form=FotoExercicioForm,
+    extra=FotoExercicio.MAX_FOTOS_POR_EXERCICIO,
+    max_num=FotoExercicio.MAX_FOTOS_POR_EXERCICIO,
+    validate_max=True,
+    can_delete=True,
+)
 
 class PlanoTreinoForm(forms.ModelForm):
     class Meta:

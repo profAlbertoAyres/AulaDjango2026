@@ -1,14 +1,46 @@
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 
 from usuarios.mixins import PersonalRequiredMixin
 from .models import Exercicio, PlanoTreino, SessaoTreino
-from .forms import ExercicioForm, PlanoTreinoForm, SessaoTreinoForm, SessaoExercicioFormSet
+from .forms import ExercicioForm, PlanoTreinoForm, SessaoTreinoForm, SessaoExercicioFormSet, FotoExercicioFormSet
 
 
 # ---------- Exercício ----------
+
+class ExercicioFormsetMixin:
+    """Mixin com a lógica compartilhada do formset de fotos."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'fotos_formset' not in context:
+            context['fotos_formset'] = FotoExercicioFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        fotos_formset = FotoExercicioFormSet(
+            self.request.POST,
+            self.request.FILES,
+            instance=self.object,
+        )
+
+        if not fotos_formset.is_valid():
+            return self.render_to_response(
+                self.get_context_data(form=form, fotos_formset=fotos_formset)
+            )
+
+        with transaction.atomic():
+            self.object.save()
+            form.save_m2m()
+            fotos_formset.instance = self.object
+            fotos_formset.save()
+
+        return redirect(self.get_success_url())
 
 class ExercicioListView(PersonalRequiredMixin, ListView):
     model = Exercicio
@@ -22,14 +54,14 @@ class ExercicioDetailView(PersonalRequiredMixin, DetailView):
     context_object_name = 'exercicio'
 
 
-class ExercicioCreateView(PersonalRequiredMixin, CreateView):
+class ExercicioCreateView(PersonalRequiredMixin, ExercicioFormsetMixin, CreateView):
     model = Exercicio
     form_class = ExercicioForm
     template_name = 'treinos/exercicio/form.html'
     success_url = reverse_lazy('treinos:exercicio_lista')
 
 
-class ExercicioUpdateView(PersonalRequiredMixin, UpdateView):
+class ExercicioUpdateView(PersonalRequiredMixin, ExercicioFormsetMixin, UpdateView):
     model = Exercicio
     form_class = ExercicioForm
     template_name = 'treinos/exercicio/form.html'
