@@ -32,7 +32,6 @@ class FotoExercicioForm(forms.ModelForm):
             'imagem': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/*',
-                'capture': 'environment',
             }),
             'legenda': forms.TextInput(attrs={'class': 'form-control'}),
         }
