@@ -188,11 +188,11 @@
                 if (isNativo) {
                     // Dentro do app (Android/iOS via Capacitor): abre o menu nativo Câmera/Galeria
                     try {
-                        const { Camera, CameraResultType, CameraSource } = window.CapacitorCamera || {};
+                        const Camera = window.Capacitor.Plugins.Camera;
                         const photo = await Camera.getPhoto({
                             quality: 80,
-                            resultType: CameraResultType.Uri,
-                            source: CameraSource.Prompt, // sempre pergunta: Câmera ou Galeria
+                            resultType: 'uri',   // equivalente a CameraResultType.Uri
+                            source: 'PROMPT',    // equivalente a CameraSource.Prompt — sempre pergunta: Câmera ou Galeria
                         });
 
                         const response = await fetch(photo.webPath);
