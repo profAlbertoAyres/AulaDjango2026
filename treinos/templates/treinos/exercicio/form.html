@@ -71,7 +71,7 @@
             </div>
         {% endif %}
 
-                <div id="fotos-formset" class="row">
+        <div id="fotos-formset" class="row">
             {% for foto_form in fotos_formset %}
                 <div class="col-md-4 mb-3 foto-form-item {% if not foto_form.instance.pk %}foto-vazia d-none{% endif %}">
                     <div class="card h-100">
@@ -88,9 +88,17 @@
                                          class="img-fluid rounded mb-2" alt="Foto do exercício">
                                 {% endif %}
                             {% else %}
-                                {# slot novo: mostra o input de upload #}
+                                {# slot novo: botão que abre câmera/galeria + input escondido #}
                                 <label class="form-label">Foto</label>
+
+                                <button type="button" class="btn btn-outline-secondary w-100 mb-2 btn-tirar-foto">
+                                    📷 Adicionar foto
+                                </button>
+
+                                <img class="preview-foto img-fluid rounded mb-2 d-none" alt="Prévia da foto">
+
                                 {{ foto_form.imagem }}
+
                                 {% for error in foto_form.imagem.errors %}
                                     <div class="text-danger small">{{ error }}</div>
                                 {% endfor %}
@@ -138,30 +146,95 @@
         </div>
 
     </form>
+
     {% block extra_js %}
 
-    <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const addCard = document.getElementById('foto-add-card');
-                const btnAdd = document.getElementById('btn-add-foto');
-                const vazios = document.querySelectorAll('#fotos-formset .foto-vazia');
-                let proximo = 0;
+    {# Esconde os inputs de arquivo nativos: o botão "Adicionar foto" que controla tudo agora #}
+    <style>
+        .foto-form-item input[type="file"] {
+            display: none;
+        }
+    </style>
 
-                if (vazios.length === 0) {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addCard = document.getElementById('foto-add-card');
+            const btnAdd = document.getElementById('btn-add-foto');
+            const vazios = document.querySelectorAll('#fotos-formset .foto-vazia');
+            let proximo = 0;
+
+            if (vazios.length === 0) {
+                addCard.classList.add('d-none');
+            }
+
+            btnAdd.addEventListener('click', function () {
+                if (proximo < vazios.length) {
+                    vazios[proximo].classList.remove('d-none');
+                    proximo++;
+                }
+                if (proximo >= vazios.length) {
                     addCard.classList.add('d-none');
                 }
+            });
 
-                btnAdd.addEventListener('click', function () {
-                    if (proximo < vazios.length) {
-                        vazios[proximo].classList.remove('d-none');
-                        proximo++;
+            // ---- Lógica da foto: câmera nativa (dentro do app) ou seletor padrão (navegador) ----
+
+            async function tirarOuEscolherFoto(card) {
+                const input = card.querySelector('input[type="file"]');
+                const preview = card.querySelector('.preview-foto');
+
+                const isNativo = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+
+                if (isNativo) {
+                    // Dentro do app (Android/iOS via Capacitor): abre o menu nativo Câmera/Galeria
+                    try {
+                        const { Camera, CameraResultType, CameraSource } = window.CapacitorCamera || {};
+                        const photo = await Camera.getPhoto({
+                            quality: 80,
+                            resultType: CameraResultType.Uri,
+                            source: CameraSource.Prompt, // sempre pergunta: Câmera ou Galeria
+                        });
+
+                        const response = await fetch(photo.webPath);
+                        const blob = await response.blob();
+                        const file = new File([blob], 'foto.jpg', { type: blob.type || 'image/jpeg' });
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        input.files = dataTransfer.files;
+
+                        preview.src = photo.webPath;
+                        preview.classList.remove('d-none');
+                    } catch (err) {
+                        console.error('Erro ao usar câmera nativa:', err);
+                        // Se o usuário cancelar ou der erro, não faz nada
                     }
-                    if (proximo >= vazios.length) {
-                        addCard.classList.add('d-none');
+                } else {
+                    // Navegador normal (desktop/mobile web): usa o seletor de arquivo padrão do sistema
+                    input.click();
+                }
+            }
+
+            document.querySelectorAll('.btn-tirar-foto').forEach(function (botao) {
+                botao.addEventListener('click', function () {
+                    const card = botao.closest('.foto-form-item');
+                    tirarOuEscolherFoto(card);
+                });
+            });
+
+            // Quando o usuário escolhe pelo seletor padrão (fallback navegador), atualiza a prévia
+            document.querySelectorAll('.foto-form-item input[type="file"]').forEach(function (input) {
+                input.addEventListener('change', function () {
+                    const card = input.closest('.foto-form-item');
+                    const preview = card.querySelector('.preview-foto');
+                    if (input.files && input.files[0]) {
+                        preview.src = URL.createObjectURL(input.files[0]);
+                        preview.classList.remove('d-none');
                     }
                 });
             });
-        </script>
+        });
+    </script>
     {% endblock %}
 
 {% endblock %}
