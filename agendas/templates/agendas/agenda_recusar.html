@@ -1,10 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %} Recusar solicitação {% endblock %}
+
+{% block content %}
+
+    <h3 class="titulo-secao mb-4">Recusar solicitação</h3>
+
+    <div class="card card-fitness">
+        <div class="card-body">
+
+            <p class="mb-1">
+                <strong>Aluno:</strong> {{ object.aluno.nome }}
+            </p>
+            <p class="mb-3">
+                <strong>Horário:</strong>
+                {{ object.data|date:"d/m/Y" }} às {{ object.inicio|time:"H:i" }}
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.justificativa.id_for_label }}" class="form-label">
+                        Motivo da recusa
+                    </label>
+                    {{ form.justificativa }}
+                    {% for erro in form.justificativa.errors %}
+                        <div class="text-danger small">{{ erro }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-danger">Recusar</button>
+                <a href="{% url 'agendas:agenda_dia' %}?data={{ object.data|date:'Y-m-d' }}"
+                   class="btn btn-outline-secondary">Voltar</a>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}

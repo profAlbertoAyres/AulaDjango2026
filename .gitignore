@@ -4,7 +4,7 @@ venv/
 env/
 
 #python
-__pycach__/
+__pycache__/
 *.py[cod]
 *$py.class
 

@@ -1,10 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %} Meu treino {% endblock %}
+
+{% block content %}
+
+    <h3 class="titulo-secao mb-4">Meu treino</h3>
+
+    {% if not plano %}
+
+        <div class="alert alert-warning">
+            Você não tem um plano ativo. Fale com seu personal para criar um treino.
+        </div>
+
+    {% else %}
+
+        <!-- Cabeçalho do plano -->
+        <div class="card card-fitness mb-4">
+            <div class="card-body">
+                <h5 class="mb-1">{{ plano.descricao|default:"Plano de treino" }}</h5>
+                <div class="text-secondary small">
+                    Início: {{ plano.inicio|date:"d/m/Y" }}
+                    {% if plano.final %} · Término: {{ plano.final|date:"d/m/Y" }}{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Uma sessão por card -->
+        {% for sessao in plano.sessoes.all %}
+            <div class="card card-fitness mb-4">
+                <div class="card-header">
+                    <i class="bi bi-lightning-charge me-2"></i>{{ sessao.nome }}
+                </div>
+
+                {% if sessao.observacao %}
+                    <div class="card-body pb-0 text-secondary small">{{ sessao.observacao }}</div>
+                {% endif %}
+
+                <div class="list-group list-group-flush">
+                    {% for item in sessao.exercicios_da_sessao.all %}
+                        <div class="list-group-item">
+
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="fw-bold">{{ item.exercicio.nome }}</div>
+                                {% if item.exercicio.grupo_muscular %}
+                                    <span class="badge text-bg-secondary">{{ item.exercicio.grupo_muscular }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="small mt-1">
+                                <span class="me-3"><strong>Séries:</strong> {{ item.series }}</span>
+                                <span class="me-3"><strong>Repetições:</strong> {{ item.repeticoes }}</span>
+                                {% if item.carga %}
+                                    <span class="me-3"><strong>Carga:</strong> {{ item.carga|floatformat:"-2" }} kg</span>
+                                {% endif %}
+                                {% if item.tempo_descanso %}
+                                    <span><strong>Descanso:</strong> {{ item.tempo_descanso }}s</span>
+                                {% endif %}
+                            </div>
+
+                            {% if item.exercicio.descricao %}
+                                <div class="text-secondary small mt-1">{{ item.exercicio.descricao }}</div>
+                            {% endif %}
+
+                            {% with fotos=item.exercicio.fotos.all %}
+                                {% if fotos %}
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        {% for foto in fotos %}
+                                            <a href="{{ foto.imagem.url }}" target="_blank">
+                                                <img src="{{ foto.imagem.url }}"
+                                                     alt="{{ foto.legenda|default:item.exercicio.nome }}"
+                                                     class="rounded"
+                                                     style="width: 64px; height: 64px; object-fit: cover;">
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-muted small">
+                            Nenhum exercício cadastrado nesta sessão.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-secondary">Este plano ainda não tem sessões.</p>
+        {% endfor %}
+        
+    {% endif %}
+
+{% endblock %}

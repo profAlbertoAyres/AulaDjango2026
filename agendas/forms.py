@@ -2,10 +2,6 @@ from django import forms
 from .models import Agenda
 
 
-from django import forms
-from .models import Agenda
-
-
 class AgendaForm(forms.ModelForm):
     class Meta:
         model = Agenda
@@ -35,7 +31,7 @@ class AgendaForm(forms.ModelForm):
             data=data,
             inicio__lt=fim,
             fim__gt=inicio,
-        ).exclude(status='CANCELADO')
+        ).exclude(status__in=['CANCELADO', 'RECUSADO'])
 
         if self.instance.pk:
             conflito = conflito.exclude(pk=self.instance.pk)
@@ -44,3 +40,27 @@ class AgendaForm(forms.ModelForm):
             raise forms.ValidationError('Já existe um agendamento nesse horário.')
 
         return cleaned_data
+
+
+class RecusaForm(forms.ModelForm):
+    class Meta:
+        model = Agenda
+        fields = ['justificativa']
+        widgets = {
+            'justificativa': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+from .models import Agenda, HorarioAtendimento
+
+
+class HorarioAtendimentoForm(forms.ModelForm):
+    class Meta:
+        model = HorarioAtendimento
+        fields = ['dia_semana', 'inicio', 'fim']
+        labels = {'dia_semana': 'Dia da semana', 'inicio': 'Início', 'fim': 'Término'}
+        widgets = {
+            'dia_semana': forms.Select(attrs={'class': 'form-select'}),
+            'inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}, format='%H:%M'),
+            'fim': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}, format='%H:%M'),
+        }

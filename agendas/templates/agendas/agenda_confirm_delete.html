@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir agendamento{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h4 class="card-title text-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>Excluir agendamento
+        </h4>
+        <p>Tem certeza que deseja excluir <strong>{{ object }}</strong>?</p>
+        <p class="text-muted">Esta ação não pode ser desfeita.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <a href="{% url 'agendas:agenda_dia' %}?data={{ object.data|date:'Y-m-d' }}"
+               class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

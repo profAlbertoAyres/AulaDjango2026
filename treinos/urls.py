@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .views import MeuTreinoView
 
 app_name = 'treinos'
 
@@ -23,4 +24,7 @@ urlpatterns = [
     path('planos/<int:plano_pk>/sessoes/nova/', views.sessao_treino_form, name='sessao_nova'),
     path('planos/<int:plano_pk>/sessoes/<int:sessao_pk>/editar/', views.sessao_treino_form, name='sessao_editar'),
     path('planos/<int:plano_pk>/sessoes/<int:sessao_pk>/excluir/', views.sessao_treino_excluir, name='sessao_excluir'),
+
+    #aluno
+    path('meu-treino/', MeuTreinoView.as_view(), name='meu_treino'),
 ]

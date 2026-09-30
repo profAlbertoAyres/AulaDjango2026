@@ -1,25 +1,38 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect
+
+from .permissoes import e_aluno, e_personal, e_superuser
 
 
-class AlunoRequiredMixin(LoginRequiredMixin):
+class PerfilRequiredMixin(LoginRequiredMixin):
+    mensagem_negado = 'Você não tem permissão para acessar esta área.'
+
+    def tem_permissao(self, user):
+        raise NotImplementedError('Defina tem_permissao() na subclasse.')
+
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)  # LoginRequiredMixin cuida do redirect
-
-        if request.user.is_superuser or hasattr(request.user, 'aluno'):
-            return super().dispatch(request, *args, **kwargs)
-
-        raise PermissionDenied('Esta área é exclusiva para alunos.')
+        # Anônimo: o LoginRequiredMixin (no super) redireciona para o login.
+        if request.user.is_authenticated and not self.tem_permissao(request.user):
+            raise PermissionDenied(self.mensagem_negado)
+        return super().dispatch(request, *args, **kwargs)
 
 
-class PersonalRequiredMixin(LoginRequiredMixin):
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
+class AlunoRequiredMixin(PerfilRequiredMixin):
+    mensagem_negado = 'Esta área é exclusiva para alunos.'
 
-        if request.user.is_superuser or hasattr(request.user, 'personal'):
-            return super().dispatch(request, *args, **kwargs)
+    def tem_permissao(self, user):
+        return e_aluno(user)
 
-        raise PermissionDenied('Esta área é exclusiva para personais.')
+
+class PersonalRequiredMixin(PerfilRequiredMixin):
+    mensagem_negado = 'Esta área é exclusiva para personais.'
+
+    def tem_permissao(self, user):
+        return e_personal(user)
+
+
+class SuperuserRequiredMixin(PerfilRequiredMixin):
+    mensagem_negado = 'Esta área é exclusiva para administradores.'
+
+    def tem_permissao(self, user):
+        return e_superuser(user)

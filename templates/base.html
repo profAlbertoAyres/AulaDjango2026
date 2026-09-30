@@ -25,7 +25,7 @@
     <!-- Overlay usado para fechar a sidebar no modo mobile -->
     <div class="sidebar-overlay"></div>
 
-    <!-- ====================== SIDEBAR ====================== -->
+    <!-- ====================== CONTEÚDO PRINCIPAL ====================== -->
     <div class="main-wrapper">
 
         <!-- Navbar superior -->
@@ -87,15 +87,16 @@
 
         <!-- Área de conteúdo -->
         <main class="container content">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    <h6>
-                        {{ message.message }}
-                    </h6>
-                </div>
-            {% endfor %}
-        {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    {# o Django chama de "error", mas o Bootstrap só conhece "danger" #}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <h6>
+                            {{ message.message }}
+                        </h6>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
             {% block content %}
 
@@ -110,14 +111,14 @@
 
     </div>
 
-    <!-- ====================== CONTEÚDO PRINCIPAL ====================== -->
+    <!-- ====================== SIDEBAR ====================== -->
     <aside class="sidebar">
 
         <!-- Logo / Marca -->
         <div class="sidebar-brand">
             <a href="{% url 'web:home' %}" class="link-light link-offset-2">
-            <i class="bi bi-heart-pulse-fill me-2"></i>
-            <span class="brand-text">PersonalPro</span>
+                <i class="bi bi-heart-pulse-fill me-2"></i>
+                <span class="brand-text">PersonalPro</span>
             </a>
         </div>
 
@@ -147,77 +148,97 @@
 
                 <!-- Usuários (Personal e superuser gerenciam Alunos e Personals) -->
                 {% if request.user.personal or request.user.is_superuser %}
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuUsuarios"
-                       aria-expanded="false" role="button">
-                        <i class="bi bi-people menu-icon"></i>
-                        <span class="menu-label">Usuários</span>
-                        <i class="bi bi-chevron-right submenu-arrow"></i>
-                    </a>
-                    <ul class="collapse submenu" id="menuUsuarios">
-                        <li>
-                            <a class="nav-link" href="{% url 'usuarios:aluno_lista' %}">
-                                <i class="bi bi-dot"></i>
-                                <span class="menu-label">Alunos</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link" href="{% url 'usuarios:personal_lista' %}">
-                                <i class="bi bi-dot"></i>
-                                <span class="menu-label">Personais</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuUsuarios"
+                           aria-expanded="false" role="button">
+                            <i class="bi bi-people menu-icon"></i>
+                            <span class="menu-label">Usuários</span>
+                            <i class="bi bi-chevron-right submenu-arrow"></i>
+                        </a>
+                        <ul class="collapse submenu" id="menuUsuarios">
+                            <li>
+                                <a class="nav-link" href="{% url 'usuarios:aluno_lista' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Alunos</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="{% url 'usuarios:personal_lista' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Personais</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 {% endif %}
 
                 <!-- Agenda -->
                 {% if request.user.personal or request.user.is_superuser %}
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuAgenda"
-                       aria-expanded="false" role="button">
-                        <i class="bi bi-calendar-week menu-icon"></i>
-                        <span class="menu-label">Agenda</span>
-                        <i class="bi bi-chevron-right submenu-arrow"></i>
-                    </a>
-                    <ul class="collapse submenu" id="menuAgenda">
-                        <li>
-                            <a class="nav-link" href="{% url 'agendas:agenda_dia' %}">
-                                <i class="bi bi-dot"></i>
-                                <span class="menu-label">Agenda</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            {% endif %}
+                    {# Personal / admin: agenda do dia e configuração dos horários #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuAgenda"
+                           aria-expanded="false" role="button">
+                            <i class="bi bi-calendar-week menu-icon"></i>
+                            <span class="menu-label">Agenda</span>
+                            <i class="bi bi-chevron-right submenu-arrow"></i>
+                        </a>
+                        <ul class="collapse submenu" id="menuAgenda">
+                            <li>
+                                <a class="nav-link" href="{% url 'agendas:agenda_dia' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Agenda do dia</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="{% url 'agendas:horarios' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Horários de atendimento</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% elif request.user.aluno %}
+                    {# Aluno: link direto para a grade da semana #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'agendas:agenda_semana_aluno' %}">
+                            <i class="bi bi-calendar-week menu-icon"></i>
+                            <span class="menu-label">Minha agenda</span>
+                        </a>
+                    </li>
+                {% endif %}
 
                 <!-- Treinos -->
                 {% if request.user.personal or request.user.is_superuser %}
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuTreinos"
-                       aria-expanded="false" role="button">
-                        <i class="bi bi-clipboard2-pulse menu-icon"></i>
-                        <span class="menu-label">Treinos</span>
-                        <i class="bi bi-chevron-right submenu-arrow"></i>
-                    </a>
-                    <ul class="collapse submenu" id="menuTreinos">
-                        <li>
-                            <a class="nav-link" href="{% url 'treinos:exercicio_lista' %}">
-                                <i class="bi bi-dot"></i>
-                                <span class="menu-label">Exercícios</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="nav-link" href="{% url 'treinos:plano_lista' %}">
-                                <i class="bi bi-dot"></i>
-                                <span class="menu-label">Planos de Treino</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#menuTreinos"
+                           aria-expanded="false" role="button">
+                            <i class="bi bi-clipboard2-pulse menu-icon"></i>
+                            <span class="menu-label">Treinos</span>
+                            <i class="bi bi-chevron-right submenu-arrow"></i>
+                        </a>
+                        <ul class="collapse submenu" id="menuTreinos">
+                            <li>
+                                <a class="nav-link" href="{% url 'treinos:exercicio_lista' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Exercícios</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="{% url 'treinos:plano_lista' %}">
+                                    <i class="bi bi-dot"></i>
+                                    <span class="menu-label">Planos de Treino</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if request.user.aluno %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'treinos:meu_treino' %}">
+                            <i class="bi bi-clipboard2-pulse menu-icon"></i>
+                            <span class="menu-label">Meu treino</span>
+                        </a>
+                    </li>
                 {% endif %}
 
             </ul>

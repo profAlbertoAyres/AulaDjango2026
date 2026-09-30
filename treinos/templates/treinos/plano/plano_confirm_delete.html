@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir plano{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h4 class="card-title text-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>Excluir plano de treino
+        </h4>
+        <p>
+            Tem certeza que deseja excluir o plano de <strong>{{ object.aluno.nome }}</strong>,
+            iniciado em {{ object.inicio|date:"d/m/Y" }}?
+        </p>
+        <p class="text-muted">
+            Todas as sessões e exercícios deste plano também serão excluídos.
+            Esta ação não pode ser desfeita.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <a href="{% url 'treinos:plano_detalhe' object.pk %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

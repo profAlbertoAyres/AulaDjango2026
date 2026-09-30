@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %} Minha Agenda {% endblock %}
+
+{% block content %}
+
+    <h3 class="titulo-secao mb-4">Minha Agenda</h3>
+
+    <!-- Navegação de semana -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a class="btn btn-outline-secondary btn-sm"
+           href="?data={{ semana_anterior|date:'Y-m-d' }}">
+            <i class="bi bi-chevron-left"></i> Semana anterior
+        </a>
+        <span class="fw-bold">
+            {{ dias_semana.0|date:"d/m" }} a {{ dias_semana.6|date:"d/m/Y" }}
+        </span>
+        <a class="btn btn-outline-secondary btn-sm"
+           href="?data={{ semana_proxima|date:'Y-m-d' }}">
+            Próxima semana <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+
+    <!-- Legenda -->
+    <div class="mb-3 small">
+        <span class="badge text-bg-light border me-2">Livre</span>
+        <span class="badge text-bg-secondary me-2">Ocupado</span>
+        <span class="badge text-bg-dark me-2">Indisponível</span>
+        <span class="badge text-bg-warning me-2">Aguardando</span>
+        <span class="badge text-bg-success me-2">Confirmado</span>
+        <span class="badge text-bg-danger me-2">Recusado</span>
+    </div>
+
+    <!-- Um card por dia da semana; o Bootstrap já quebra a coluna sozinho em telas menores -->
+    <div class="row">
+        {% for dia in dias %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card card-fitness h-100">
+                    <div class="card-header text-center {% if dia.data == hoje %}bg-primary text-white{% endif %}">
+                        {{ dia.data|date:"D" }} - {{ dia.data|date:"d/m" }}
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for slot in dia.slots %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{{ slot.inicio|time:"H:i" }}</span>
+                                {% include 'agendas/_slot_status.html' %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

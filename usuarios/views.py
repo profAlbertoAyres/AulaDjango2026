@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 
+from agendas.models import Agenda
 from treinos.models import PlanoTreino, Exercicio
 from usuarios.decorators import aluno_required, personal_required, superuser_required
 from usuarios.forms import UsuarioForm, AlunoForm, LoginForm, PersonalForm
@@ -278,4 +279,72 @@ class MinhaPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'usuarios/acesso/alterar_senha.html'
     success_url = reverse_lazy('senha_alterada')
 
+
+
+@aluno_required
+def aluno_dashboard(request):
+    aluno = request.user.aluno
+    hoje = timezone.now().date()
+    limite_vencimento = hoje + timedelta(days=15)
+
+    # ---- Plano ativo ----
+    plano_ativo = (
+        aluno.planos_treino
+        .filter(status='A')
+        .prefetch_related('sessoes__exercicios_da_sessao')
+        .order_by('-inicio')
+        .first()
+    )
+
+    dias_restantes = None
+    plano_vencendo = False
+    if plano_ativo and plano_ativo.final:
+        dias_restantes = (plano_ativo.final - hoje).days
+        plano_vencendo = hoje <= plano_ativo.final <= limite_vencimento
+
+    sessoes_resumo = []
+    if plano_ativo:
+        sessoes_resumo = [
+            {
+                'nome': sessao.nome,
+                'total_exercicios': sessao.exercicios_da_sessao.count(),
+            }
+            for sessao in plano_ativo.sessoes.all()
+        ]
+
+    # ---- Agendamentos ----
+    proximos_agendamentos = (
+        Agenda.objects.filter(
+            aluno=aluno,
+            status__in=['SOLICITADO', 'AGENDADO'],
+            data__gte=hoje,
+        )
+        .order_by('data', 'inicio')[:5]
+    )
+
+    proximo_confirmado = (
+        Agenda.objects.filter(aluno=aluno, status='AGENDADO', data__gte=hoje)
+        .order_by('data', 'inicio')
+        .first()
+    )
+
+    # ---- Recusas recentes (últimos 7 dias, pra não acumular pra sempre) ----
+    limite_recusa = hoje - timedelta(days=7)
+    recusas_recentes = Agenda.objects.filter(
+        aluno=aluno,
+        status='RECUSADO',
+        data__gte=limite_recusa,
+    ).order_by('-data')
+
+    contexto = {
+        'plano_ativo': plano_ativo,
+        'dias_restantes': dias_restantes,
+        'plano_vencendo': plano_vencendo,
+        'sessoes_resumo': sessoes_resumo,
+        'total_sessoes': len(sessoes_resumo),
+        'proximo_confirmado': proximo_confirmado,
+        'proximos_agendamentos': proximos_agendamentos,
+        'recusas_recentes': recusas_recentes,
+    }
+    return render(request, 'usuarios/aluno/dashboard.html', contexto)
 

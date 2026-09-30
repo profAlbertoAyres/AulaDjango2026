@@ -2,9 +2,11 @@ from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.decorators.http import require_POST
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 
-from usuarios.mixins import PersonalRequiredMixin
+from usuarios.decorators import personal_required
+from usuarios.mixins import PersonalRequiredMixin, AlunoRequiredMixin
 from .models import Exercicio, PlanoTreino, SessaoTreino
 from .forms import ExercicioForm, PlanoTreinoForm, SessaoTreinoForm, SessaoExercicioFormSet, FotoExercicioFormSet
 
@@ -12,7 +14,6 @@ from .forms import ExercicioForm, PlanoTreinoForm, SessaoTreinoForm, SessaoExerc
 # ---------- Exercício ----------
 
 class ExercicioFormsetMixin:
-    """Mixin com a lógica compartilhada do formset de fotos."""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -120,9 +121,14 @@ class PlanoTreinoDeleteView(PersonalRequiredMixin, DeleteView):
     template_name = 'treinos/plano/plano_confirm_delete.html'
     success_url = reverse_lazy('treinos:plano_lista')
 
+    def form_valid(self, form):
+        messages.success(self.request, 'Plano de treino excluído com sucesso.')
+        return super().form_valid(form)
+
 
 # ---------- Sessão de Treino (Tela 3: form da sessão + formset de exercícios) ----------
 
+@personal_required
 def sessao_treino_form(request, plano_pk, sessao_pk=None):
     plano = get_object_or_404(PlanoTreino, pk=plano_pk)
 
@@ -159,8 +165,26 @@ def sessao_treino_form(request, plano_pk, sessao_pk=None):
     return render(request, 'treinos/plano/sessao_form.html', contexto)
 
 
+@personal_required
+@require_POST
 def sessao_treino_excluir(request, plano_pk, sessao_pk):
     sessao = get_object_or_404(SessaoTreino, pk=sessao_pk, plano_treino_id=plano_pk)
     sessao.delete()
     messages.success(request, 'Sessão excluída com sucesso.')
     return redirect('treinos:plano_detalhe', pk=plano_pk)
+
+
+class MeuTreinoView(AlunoRequiredMixin, TemplateView):
+    """Treino completo do aluno logado (plano ativo, com sessões e exercícios)."""
+    template_name = 'treinos/aluno/meu_treino.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['plano'] = (
+            self.request.user.aluno.planos_treino
+            .filter(status='A')
+            .prefetch_related('sessoes__exercicios_da_sessao__exercicio__fotos')
+            .order_by('-inicio')
+            .first()
+        )
+        return context
