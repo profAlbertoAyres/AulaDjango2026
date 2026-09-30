@@ -72,7 +72,9 @@
                             <i class="bi bi-key me-2"></i> Alterar Senha
                         </a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
                     <li>
                         <form method="POST" action="{% url 'logout' %}">
                             {% csrf_token %}
@@ -89,11 +91,8 @@
         <main class="container content">
             {% if messages %}
                 {% for message in messages %}
-                    {# o Django chama de "error", mas o Bootstrap só conhece "danger" #}
-                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
-                        <h6>
-                            {{ message.message }}
-                        </h6>
+                    <div class="alert alert-{{ message.tags }}">
+                        <h6>{{ message.message }}</h6>
                     </div>
                 {% endfor %}
             {% endif %}

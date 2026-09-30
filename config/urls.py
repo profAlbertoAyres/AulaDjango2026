@@ -16,13 +16,13 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeDoneView, PasswordResetView, \
+from django.contrib.auth.views import LogoutView, PasswordChangeDoneView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import path, include, reverse_lazy
 
 from config import settings
 from usuarios import views
-from usuarios.forms import LoginForm, PasswordResetForm, MinhaPasswordChangeForm, ResetPasswordForm, \
+from usuarios.forms import MinhaPasswordChangeForm, ResetPasswordForm, \
     MinhaSetPasswordForm
 from usuarios.views import MinhaPasswordChangeView
 
