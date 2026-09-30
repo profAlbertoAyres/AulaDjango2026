@@ -1,0 +1,43 @@
+{# Recebe: slot (dict com inicio, fim, data, estado, agendamento_id, justificativa) #}
+
+{% if slot.estado == 'livre' %}
+    <form method="post" action="{% url 'agendas:agenda_solicitar' %}">
+        {% csrf_token %}
+        <input type="hidden" name="data" value="{{ slot.data|date:'Y-m-d' }}">
+        <input type="hidden" name="inicio" value="{{ slot.inicio|time:'H:i' }}">
+        <input type="hidden" name="fim" value="{{ slot.fim|time:'H:i' }}">
+        <button type="submit" class="btn btn-sm btn-outline-primary">Solicitar</button>
+    </form>
+
+{% elif slot.estado == 'ocupado' %}
+    <span class="badge text-bg-secondary">Ocupado</span>
+
+{% elif slot.estado == 'bloqueado' %}
+    <span class="badge text-bg-dark"><i class="bi bi-lock"></i> Indisponível</span>
+
+{% elif slot.estado == 'meu_solicitado' or slot.estado == 'meu_confirmado' %}
+    {# os dois têm o mesmo layout: um badge + botão de cancelar, só muda cor/texto do badge #}
+    <div class="text-end">
+        {% if slot.estado == 'meu_solicitado' %}
+            <span class="badge text-bg-warning d-block mb-1">Aguardando</span>
+        {% else %}
+            <span class="badge text-bg-success d-block mb-1">Confirmado</span>
+        {% endif %}
+        <form method="post" action="{% url 'agendas:agenda_cancelar_meu' pk=slot.agendamento_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+        </form>
+    </div>
+
+{% elif slot.estado == 'meu_recusado' %}
+    <div class="text-end small">
+        <span class="badge text-bg-danger">Recusado</span>
+        <div class="text-secondary">{{ slot.justificativa }}</div>
+    </div>
+
+{% elif slot.estado == 'meu_realizado' %}
+    <span class="badge text-bg-info">Realizado</span>
+
+{% else %}
+    <span class="text-secondary">-</span>
+{% endif %}
