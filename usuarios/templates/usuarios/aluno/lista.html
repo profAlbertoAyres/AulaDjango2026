@@ -25,7 +25,7 @@
             {% for aluno in alunos %}
                 <tr>
                     <td>{{ aluno.nome }}</td>
-                    <td>{{ aluno.sexo|default:"-" }}</td>
+                    <td>{{ aluno.get_sexo_display|default:"-" }}</td>
                     <td>{{ aluno.nascimento|date:"d/m/Y"|default:"-" }}</td>
                     <td>{{ aluno.celular|default:"-" }}</td>
                     <td class="d-flex justify-content-center align-items-center gap-1">

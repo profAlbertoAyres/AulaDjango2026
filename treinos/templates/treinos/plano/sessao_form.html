@@ -156,7 +156,14 @@
         const totalForms = parseInt(totalFormsInput.value);
 
         const grid = document.getElementById('grid-exercicios');
-        const ultimoCard = grid.querySelector('.card-exercicio:last-of-type');
+
+        const cards = grid.querySelectorAll('.card-exercicio');
+        const ultimoCard = cards[cards.length - 1];
+
+        if (!ultimoCard) {
+            console.error('Nenhum formulário de exercício encontrado.');
+            return;
+        }
 
         const novoCard = ultimoCard.cloneNode(true);
 
@@ -173,9 +180,11 @@
             }
         });
 
-        // insere o novo card antes do card tracejado de "adicionar"
-        grid.insertBefore(novoCard, document.getElementById('btn-add-exercicio').parentElement);
+        grid.insertBefore(
+            novoCard,
+            document.getElementById('btn-add-exercicio').parentElement
+        );
+
         totalFormsInput.value = totalForms + 1;
     });
-</script>
-{% endblock %}
+</script>{% endblock %}
