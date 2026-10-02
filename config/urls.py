@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView, PasswordChangeDoneView, Passwo
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import path, include, reverse_lazy
 
-from config import settings
+from django.conf import settings
 from usuarios import views
 from usuarios.forms import MinhaPasswordChangeForm, ResetPasswordForm, \
     MinhaSetPasswordForm

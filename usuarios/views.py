@@ -26,7 +26,7 @@ class CustomLoginView(LoginView):
     template_name = 'usuarios/acesso/login.html'
     authentication_form = LoginForm
 
-    def get_success_url(self):
+    def get_default_redirect_url(self):
         user = self.request.user
         if user.is_superuser:
             return reverse_lazy('usuarios:administrador_dashboard')
@@ -39,10 +39,6 @@ class CustomLoginView(LoginView):
 @superuser_required
 def administrador_dashboard(request):
     return render(request, 'usuarios/admin/dashboard.html')
-
-@aluno_required
-def aluno_dashboard(request):
-    return render(request, 'usuarios/aluno/dashboard.html')
 
 class AlunoListView(PersonalRequiredMixin, ListView):
     model = Aluno
@@ -139,7 +135,7 @@ def excluir_aluno(request, pk):
 
 @personal_required
 def personal_dashboard(request):
-    hoje = timezone.now().date()
+    hoje = timezone.localdate()
     limite = hoje + timedelta(days=15)
 
     # ---- Cards de métricas ----
@@ -284,7 +280,7 @@ class MinhaPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 @aluno_required
 def aluno_dashboard(request):
     aluno = request.user.aluno
-    hoje = timezone.now().date()
+    hoje = timezone.localdate()
     limite_vencimento = hoje + timedelta(days=15)
 
     # ---- Plano ativo ----

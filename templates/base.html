@@ -41,7 +41,7 @@
                     </span>
                     <span class="user-name">
                         {% if request.user.is_superuser %}
-                            {{ request.user.username }} <span class="badge bg-dark">admin</span>
+                            {{ request.user.username }}
                         {% elif request.user.aluno %}
                             {{ request.user.aluno.nome }}
                         {% elif request.user.personal %}

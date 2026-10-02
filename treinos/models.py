@@ -80,7 +80,10 @@ class PlanoTreino(models.Model):
         ordering = ['inicio','aluno']
 
     def __str__(self):
-        return f'{self.aluno.nome} - {self.descricao}'
+        if self.descricao:
+            return f'{self.aluno.nome} - {self.descricao}'
+
+        return f'Plano de Treino - {self.aluno.nome}'
 
 class SessaoTreino(models.Model):
     plano_treino = models.ForeignKey(PlanoTreino, on_delete=models.CASCADE,
@@ -113,4 +116,9 @@ class SessaoExercicio(models.Model):
     ordem = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        verbose_name = 'Exercício da Sessão'
+        verbose_name_plural = 'Exercícios da Sessão'
         ordering = ['ordem']
+
+    def __str__(self):
+        return f'{self.sessao_treino.nome} - {self.exercicio.nome}'

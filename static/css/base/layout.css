@@ -489,6 +489,10 @@ form label.required::after {
     }
 
     .topbar .user-menu .user-name {
-        display: none;
+        display: inline;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }

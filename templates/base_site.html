@@ -108,11 +108,47 @@
             <i class="bi bi-envelope"></i>
             <span>Contato</span>
         </a>
-        <a href="{% url 'usuarios:aluno_dashboard' %}" class="bottom-nav-link d-flex flex-column align-items-center">
+
+{% if user.is_authenticated %}
+
+    {% if user.is_superuser %}
+        <a href="{% url 'usuarios:administrador_dashboard' %}"
+           class="bottom-nav-link d-flex flex-column align-items-center">
+            <i class="bi bi-person-vcard"></i>
+            <span>Admin</span>
+        </a>
+
+    {% elif user.aluno %}
+        <a href="{% url 'usuarios:aluno_dashboard' %}"
+           class="bottom-nav-link d-flex flex-column align-items-center">
             <i class="bi bi-person-circle"></i>
             <span>Aluno</span>
         </a>
-    </div>
+
+    {% elif user.personal %}
+        <a href="{% url 'usuarios:personal_dashboard' %}"
+           class="bottom-nav-link d-flex flex-column align-items-center">
+            <i class="bi bi-person-rolodex"></i>
+            <span>Personal</span>
+        </a>
+
+    {% else %}
+        <a href="#"
+           class="bottom-nav-link d-flex flex-column align-items-center">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ user.username }}</span>
+        </a>
+    {% endif %}
+
+{% else %}
+
+    <a href="{% url 'login' %}"
+       class="bottom-nav-link d-flex flex-column align-items-center">
+        <i class="bi bi-person-lock"></i>
+        <span>Entrar</span>
+    </a>
+
+{% endif %}    </div>
 </nav>
 
 <!-- Bootstrap 5.3 JS via CDN -->
