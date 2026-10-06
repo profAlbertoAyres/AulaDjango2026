@@ -3,8 +3,8 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView, LoginView
-from django.db import transaction
-from django.db.models.aggregates import Count
+from django.db import DatabaseError, transaction
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -16,11 +16,21 @@ from agendas.models import Agenda
 from treinos.models import PlanoTreino, Exercicio
 from usuarios.decorators import aluno_required, personal_required, superuser_required
 from usuarios.forms import UsuarioForm, AlunoForm, LoginForm, PersonalForm
-from usuarios.mixins import PersonalRequiredMixin, AlunoRequiredMixin
+from usuarios.mixins import PersonalRequiredMixin, AlunoRequiredMixin, SuperuserRequiredMixin
 from usuarios.models import Aluno, Personal
 
+DIAS_ALERTA_VENCIMENTO = 15
+DIAS_RECUSAS_RECENTES = 7
 
-# Create your views here.
+
+def _salvar_usuario_e_perfil(user_form, perfil_form):
+    with transaction.atomic():
+        user = user_form.save()
+        perfil = perfil_form.save(commit=False)
+        perfil.user = user
+        perfil.save()
+    return perfil
+
 
 class CustomLoginView(LoginView):
     template_name = 'usuarios/acesso/login.html'
@@ -32,148 +42,117 @@ class CustomLoginView(LoginView):
             return reverse_lazy('usuarios:administrador_dashboard')
         if hasattr(user, 'aluno'):
             return reverse_lazy('usuarios:aluno_dashboard')
-        elif hasattr(user, 'personal'):
+        if hasattr(user, 'personal'):
             return reverse_lazy('usuarios:personal_dashboard')
         return reverse_lazy('web:home')
+
+
+class MinhaPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'usuarios/acesso/alterar_senha.html'
+    success_url = reverse_lazy('senha_alterada')
+
 
 @superuser_required
 def administrador_dashboard(request):
     return render(request, 'usuarios/admin/dashboard.html')
 
-class AlunoListView(PersonalRequiredMixin, ListView):
-    model = Aluno
-    template_name = 'usuarios/aluno/lista.html'
-    context_object_name = 'alunos'
 
-@personal_required
-def criar_aluno(request):
+class PersonalListView(SuperuserRequiredMixin, ListView):
+    model = Personal
+    template_name = 'usuarios/personal/lista.html'
+    context_object_name = 'personals'
+
+
+class PersonalDetalhes(SuperuserRequiredMixin, DetailView):
+    model = Personal
+    template_name = 'usuarios/personal/detalhe.html'
+    context_object_name = 'personal'
+
+
+@superuser_required
+def criar_personal(request):
     if request.method == 'POST':
         user_form = UsuarioForm(request.POST)
-        aluno_form = AlunoForm(request.POST)
-        if user_form.is_valid() and aluno_form.is_valid():
+        personal_form = PersonalForm(request.POST)
+        if user_form.is_valid() and personal_form.is_valid():
             try:
-                with transaction.atomic():
-                    user = user_form.save()
-                    aluno = aluno_form.save(commit=False)
-                    aluno.user = user
-                    aluno.save()
-                messages.success(request,'Aluno cadastrado com sucesso!')
-                return redirect('usuarios:aluno_lista')
-            except Exception:
-                messages.error(request,'Não foi possível cadastrar o aluno')
-
+                _salvar_usuario_e_perfil(user_form, personal_form)
+                messages.success(request, 'Personal cadastrado com sucesso!')
+                return redirect('usuarios:personal_lista')
+            except DatabaseError:
+                messages.error(request, 'Não foi possível cadastrar o personal')
     else:
         user_form = UsuarioForm()
-        aluno_form = AlunoForm()
-    return render(request, 'usuarios/aluno/form.html',{
-            'user_form' : user_form,
-            'aluno_form' : aluno_form,
-        })
+        personal_form = PersonalForm()
+
+    return render(request, 'usuarios/personal/form.html', {
+        'user_form': user_form,
+        'personal_form': personal_form,
+    })
 
 
-@aluno_required
-def aluno_editar_perfil(request):
-    aluno = request.user.aluno  # já sabemos que é o próprio, sem precisar de pk
-
+@superuser_required
+def editar_personal(request, pk):
+    personal = get_object_or_404(Personal, pk=pk)
     if request.method == 'POST':
-        aluno_form = AlunoForm(request.POST, instance=aluno)
-        if aluno_form.is_valid():
+        personal_form = PersonalForm(request.POST, instance=personal)
+        if personal_form.is_valid():
             try:
-                aluno_form.save()
-                messages.success(request, 'Dados atualizados com sucesso!')
-                return redirect('usuarios:aluno_dashboard')
-            except Exception:
-                messages.error(request, 'Não foi possível editar seus dados')
+                personal_form.save()
+                messages.success(request, 'Personal editado com sucesso!')
+                return redirect('usuarios:personal_lista')
+            except DatabaseError:
+                messages.error(request, 'Não foi possível editar o personal')
     else:
-        aluno_form = AlunoForm(instance=aluno)
+        personal_form = PersonalForm(instance=personal)
 
-    return render(request, 'usuarios/aluno/form.html',
-                  {'aluno_form': aluno_form})
+    return render(request, 'usuarios/personal/form.html', {'personal_form': personal_form})
 
 
-@personal_required
-def editar_aluno(request, pk):
-    aluno = get_object_or_404(Aluno, pk=pk)
-    if request.method == 'POST':
-        aluno_form = AlunoForm(request.POST, instance=aluno)
-        if aluno_form.is_valid():
-            try:
-                aluno_form.save()
-                messages.success(request,'Aluno editado com sucesso!')
-                return redirect('usuarios:aluno_lista')
-            except Exception:
-                messages.error(request,'Não foi possível editar o aluno')
-    else:
-        aluno_form = AlunoForm(instance=aluno)
-    return render(request, 'usuarios/aluno/form.html',
-                  {'aluno_form': aluno_form})
-
-class AlunoDetalhes(PersonalRequiredMixin , DetailView):
-    model = Aluno
-    template_name = 'usuarios/aluno/detalhe.html'
-    context_object_name = 'aluno'
-
-class AlunoMeuPerfil(AlunoRequiredMixin, DetailView):
-    model = Aluno
-    template_name = 'usuarios/aluno/detalhe.html'
-    context_object_name = 'aluno'
-
-    def get_object(self, queryset=None):
-        return self.request.user.aluno
-
-@personal_required
+@superuser_required
 @require_POST
-def excluir_aluno(request, pk):
-    aluno = get_object_or_404(Aluno, pk=pk)
-    user = aluno.user
+def excluir_personal(request, pk):
+    personal = get_object_or_404(Personal, pk=pk)
     try:
-        user.delete()
-        messages.success(request,'Aluno excluído com sucesso!')
-    except Exception:
-        messages.error(request,'Não foi possível excluir o aluno')
-    return redirect('usuarios:aluno_lista')
+        personal.user.delete()
+        messages.success(request, 'Personal excluído com sucesso!')
+    except DatabaseError:
+        messages.error(request, 'Não foi possível excluir o personal')
+    return redirect('usuarios:personal_lista')
+
 
 @personal_required
 def personal_dashboard(request):
     hoje = timezone.localdate()
-    limite = hoje + timedelta(days=15)
+    limite = hoje + timedelta(days=DIAS_ALERTA_VENCIMENTO)
 
-    # ---- Cards de métricas ----
-    total_alunos = Aluno.objects.count()
-    total_planos_ativos = PlanoTreino.objects.filter(status='A').count()
-    total_exercicios = Exercicio.objects.count()
+    planos_vencendo = (
+        PlanoTreino.objects
+        .filter(status='A', final__gte=hoje, final__lte=limite)
+        .select_related('aluno')
+        .order_by('final')
+    )
 
-    # ---- Planos vencendo nos próximos 15 dias ----
-    planos_vencendo = PlanoTreino.objects.filter(
-        status='A',
-        final__gte=hoje,
-        final__lte=limite,
-    ).select_related('aluno').order_by('final')
-
-    # ---- Alunos sem plano ativo ----
-    alunos_sem_plano = Aluno.objects.exclude(planos_treino__status='A')
-
-    # ---- Planos agrupados por status ----
-    contagem_por_status = PlanoTreino.objects.values('status').annotate(total=Count('id'))
     nomes_status = dict(PlanoTreino.STATUS_CHOICES)
     planos_por_status = [
         {
             'status_display': nomes_status.get(item['status'], item['status']),
             'total': item['total'],
         }
-        for item in contagem_por_status
+        for item in PlanoTreino.objects.values('status').annotate(total=Count('id'))
     ]
 
     contexto = {
-        'total_alunos': total_alunos,
-        'total_planos_ativos': total_planos_ativos,
-        'total_exercicios': total_exercicios,
+        'total_alunos': Aluno.objects.count(),
+        'total_planos_ativos': PlanoTreino.objects.filter(status='A').count(),
+        'total_exercicios': Exercicio.objects.count(),
         'planos_vencendo': planos_vencendo,
         'total_planos_vencendo': planos_vencendo.count(),
-        'alunos_sem_plano': alunos_sem_plano,
+        'alunos_sem_plano': Aluno.objects.exclude(planos_treino__status='A'),
         'planos_por_status': planos_por_status,
     }
     return render(request, 'usuarios/personal/dashboard.html', contexto)
+
 
 class PersonalMeuPerfil(PersonalRequiredMixin, DetailView):
     model = Personal
@@ -186,7 +165,7 @@ class PersonalMeuPerfil(PersonalRequiredMixin, DetailView):
 
 @personal_required
 def personal_editar_perfil(request):
-    personal = request.user.personal  # já sabemos que é o próprio, sem precisar de pk
+    personal = request.user.personal
 
     if request.method == 'POST':
         personal_form = PersonalForm(request.POST, instance=personal)
@@ -195,95 +174,112 @@ def personal_editar_perfil(request):
                 personal_form.save()
                 messages.success(request, 'Dados atualizados com sucesso!')
                 return redirect('usuarios:personal_dashboard')
-            except Exception:
+            except DatabaseError:
                 messages.error(request, 'Não foi possível editar seus dados')
     else:
         personal_form = PersonalForm(instance=personal)
 
-    return render(request, 'usuarios/personal/form.html',
-                  {'personal_form': personal_form})
+    return render(request, 'usuarios/personal/form.html', {'personal_form': personal_form})
 
 
-class PersonalListView(PersonalRequiredMixin, ListView):
-    model = Personal
-    template_name = 'usuarios/personal/lista.html'
-    context_object_name = 'personals'
+class AlunoListView(PersonalRequiredMixin, ListView):
+    model = Aluno
+    template_name = 'usuarios/aluno/lista.html'
+    context_object_name = 'alunos'
+
+
+class AlunoDetalhes(PersonalRequiredMixin, DetailView):
+    model = Aluno
+    template_name = 'usuarios/aluno/detalhe.html'
+    context_object_name = 'aluno'
 
 
 @personal_required
-def criar_personal(request):
+def criar_aluno(request):
     if request.method == 'POST':
         user_form = UsuarioForm(request.POST)
-        personal_form = PersonalForm(request.POST)
-        if user_form.is_valid() and personal_form.is_valid():
+        aluno_form = AlunoForm(request.POST)
+        if user_form.is_valid() and aluno_form.is_valid():
             try:
-                with transaction.atomic():
-                    user = user_form.save()
-                    personal = personal_form.save(commit=False)
-                    personal.user = user
-                    personal.save()
-                messages.success(request, 'Personal cadastrado com sucesso!')
-                return redirect('usuarios:personal_lista')
-            except Exception:
-                messages.error(request, 'Não foi possível cadastrar o personal')
+                _salvar_usuario_e_perfil(user_form, aluno_form)
+                messages.success(request, 'Aluno cadastrado com sucesso!')
+                return redirect('usuarios:aluno_lista')
+            except DatabaseError:
+                messages.error(request, 'Não foi possível cadastrar o aluno')
     else:
         user_form = UsuarioForm()
-        personal_form = PersonalForm()
-    return render(request, 'usuarios/personal/form.html', {
+        aluno_form = AlunoForm()
+
+    return render(request, 'usuarios/aluno/form.html', {
         'user_form': user_form,
-        'personal_form': personal_form,
+        'aluno_form': aluno_form,
     })
 
 
 @personal_required
-def editar_personal(request, pk):
-    personal = get_object_or_404(Personal, pk=pk)
+def editar_aluno(request, pk):
+    aluno = get_object_or_404(Aluno, pk=pk)
     if request.method == 'POST':
-        personal_form = PersonalForm(request.POST, instance=personal)
-        if personal_form.is_valid():
+        aluno_form = AlunoForm(request.POST, instance=aluno)
+        if aluno_form.is_valid():
             try:
-                personal_form.save()
-                messages.success(request, 'Personal editado com sucesso!')
-                return redirect('usuarios:personal_lista')
-            except Exception:
-                messages.error(request, 'Não foi possível editar o personal')
+                aluno_form.save()
+                messages.success(request, 'Aluno editado com sucesso!')
+                return redirect('usuarios:aluno_lista')
+            except DatabaseError:
+                messages.error(request, 'Não foi possível editar o aluno')
     else:
-        personal_form = PersonalForm(instance=personal)
-    return render(request, 'usuarios/personal/form.html',
-                  {'personal_form': personal_form})
+        aluno_form = AlunoForm(instance=aluno)
 
-
-class PersonalDetalhes(PersonalRequiredMixin, DetailView):
-    model = Personal
-    template_name = 'usuarios/personal/detalhe.html'
-    context_object_name = 'personal'
+    return render(request, 'usuarios/aluno/form.html', {'aluno_form': aluno_form})
 
 
 @personal_required
 @require_POST
-def excluir_personal(request, pk):
-    personal = get_object_or_404(Personal, pk=pk)
-    user = personal.user
+def excluir_aluno(request, pk):
+    aluno = get_object_or_404(Aluno, pk=pk)
     try:
-        user.delete()
-        messages.success(request, 'Personal excluído com sucesso!')
-    except Exception:
-        messages.error(request, 'Não foi possível excluir o personal')
-    return redirect('usuarios:personal_lista')
+        aluno.user.delete()
+        messages.success(request, 'Aluno excluído com sucesso!')
+    except DatabaseError:
+        messages.error(request, 'Não foi possível excluir o aluno')
+    return redirect('usuarios:aluno_lista')
 
-class MinhaPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
-    template_name = 'usuarios/acesso/alterar_senha.html'
-    success_url = reverse_lazy('senha_alterada')
 
+class AlunoMeuPerfil(AlunoRequiredMixin, DetailView):
+    model = Aluno
+    template_name = 'usuarios/aluno/detalhe.html'
+    context_object_name = 'aluno'
+
+    def get_object(self, queryset=None):
+        return self.request.user.aluno
+
+
+@aluno_required
+def aluno_editar_perfil(request):
+    aluno = request.user.aluno
+
+    if request.method == 'POST':
+        aluno_form = AlunoForm(request.POST, instance=aluno)
+        if aluno_form.is_valid():
+            try:
+                aluno_form.save()
+                messages.success(request, 'Dados atualizados com sucesso!')
+                return redirect('usuarios:aluno_dashboard')
+            except DatabaseError:
+                messages.error(request, 'Não foi possível editar seus dados')
+    else:
+        aluno_form = AlunoForm(instance=aluno)
+
+    return render(request, 'usuarios/aluno/form.html', {'aluno_form': aluno_form})
 
 
 @aluno_required
 def aluno_dashboard(request):
     aluno = request.user.aluno
     hoje = timezone.localdate()
-    limite_vencimento = hoje + timedelta(days=15)
+    limite_vencimento = hoje + timedelta(days=DIAS_ALERTA_VENCIMENTO)
 
-    # ---- Plano ativo ----
     plano_ativo = (
         aluno.planos_treino
         .filter(status='A')
@@ -294,43 +290,45 @@ def aluno_dashboard(request):
 
     dias_restantes = None
     plano_vencendo = False
-    if plano_ativo and plano_ativo.final:
-        dias_restantes = (plano_ativo.final - hoje).days
-        plano_vencendo = hoje <= plano_ativo.final <= limite_vencimento
-
     sessoes_resumo = []
+
     if plano_ativo:
+        if plano_ativo.final:
+            dias_restantes = (plano_ativo.final - hoje).days
+            plano_vencendo = hoje <= plano_ativo.final <= limite_vencimento
+
         sessoes_resumo = [
             {
                 'nome': sessao.nome,
-                'total_exercicios': sessao.exercicios_da_sessao.count(),
+                'total_exercicios': len(sessao.exercicios_da_sessao.all()),
             }
             for sessao in plano_ativo.sessoes.all()
         ]
 
-    # ---- Agendamentos ----
+    agendamentos_futuros = Agenda.objects.filter(aluno=aluno, data__gte=hoje)
+
     proximos_agendamentos = (
-        Agenda.objects.filter(
-            aluno=aluno,
-            status__in=['SOLICITADO', 'AGENDADO'],
-            data__gte=hoje,
-        )
+        agendamentos_futuros
+        .filter(status__in=['SOLICITADO', 'AGENDADO'])
         .order_by('data', 'inicio')[:5]
     )
 
     proximo_confirmado = (
-        Agenda.objects.filter(aluno=aluno, status='AGENDADO', data__gte=hoje)
+        agendamentos_futuros
+        .filter(status='AGENDADO')
         .order_by('data', 'inicio')
         .first()
     )
 
-    # ---- Recusas recentes (últimos 7 dias, pra não acumular pra sempre) ----
-    limite_recusa = hoje - timedelta(days=7)
-    recusas_recentes = Agenda.objects.filter(
-        aluno=aluno,
-        status='RECUSADO',
-        data__gte=limite_recusa,
-    ).order_by('-data')
+    recusas_recentes = (
+        Agenda.objects
+        .filter(
+            aluno=aluno,
+            status='RECUSADO',
+            data__gte=hoje - timedelta(days=DIAS_RECUSAS_RECENTES),
+        )
+        .order_by('-data')
+    )
 
     contexto = {
         'plano_ativo': plano_ativo,
@@ -343,4 +341,3 @@ def aluno_dashboard(request):
         'recusas_recentes': recusas_recentes,
     }
     return render(request, 'usuarios/aluno/dashboard.html', contexto)
-
